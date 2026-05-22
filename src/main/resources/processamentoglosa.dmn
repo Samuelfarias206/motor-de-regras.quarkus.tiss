@@ -1,43 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/"
-             xmlns:dmndi="https://www.omg.org/spec/DMN/20191111/DMNDI/"
-             xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/"
-             xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/"
-             id="tiss_decisions"
-             name="TISS - Decisões de Processamento de Guias"
-             namespace="http://www.ans.gov.br/padroes/tiss/dmn/v4_00_00">
+<definitions
+    xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/"
+    xmlns:dmndi="https://www.omg.org/spec/DMN/20191111/DMNDI/"
+    xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/"
+    xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/"
+    xmlns:feel="https://www.omg.org/spec/DMN/20191111/FEEL/"
+    id="tiss_decisions"
+    name="tiss_decisions"
+    namespace="https://tiss/dmn">
 
   <!-- Input Data -->
-  <inputData id="input_tipoGuia" name="Tipo de Guia">
+  <inputData id="input_tipoGuia" name="tipoGuia">
     <variable name="tipoGuia" typeRef="string"/>
   </inputData>
 
-  <inputData id="input_statusProtocolo" name="Status do Protocolo">
+  <inputData id="input_statusProtocolo" name="statusProtocolo">
     <variable name="statusProtocolo" typeRef="string"/>
   </inputData>
 
-  <inputData id="input_valorGuia" name="Valor da Guia">
+  <inputData id="input_valorGuia" name="valorGuia">
     <variable name="valorGuia" typeRef="number"/>
   </inputData>
 
-  <inputData id="input_possuiGlosa" name="Possui Glosa">
+  <inputData id="input_possuiGlosa" name="possuiGlosa">
     <variable name="possuiGlosa" typeRef="boolean"/>
   </inputData>
 
-  <inputData id="input_tipoGlosa" name="Tipo de Glosa">
+  <inputData id="input_tipoGlosa" name="tipoGlosa">
     <variable name="tipoGlosa" typeRef="string"/>
   </inputData>
 
-  <inputData id="input_atendimentoRN" name="Atendimento RN">
+  <inputData id="input_atendimentoRN" name="atendimentoRN">
     <variable name="atendimentoRN" typeRef="boolean"/>
   </inputData>
 
-  <inputData id="input_possuiAutorizacao" name="Possui Autorização">
+  <inputData id="input_possuiAutorizacao" name="possuiAutorizacao">
     <variable name="possuiAutorizacao" typeRef="boolean"/>
   </inputData>
 
   <!-- Decision 1: Validação de Elegibilidade -->
-  <decision id="decision_elegibilidade" name="Validar Elegibilidade do Beneficiário">
+  <decision id="decision_elegibilidade" name="validarElegibilidadeBeneficiario">
+    <variable name="validarElegibilidadeBeneficiario" typeRef="Any"/>
     <informationRequirement>
       <requiredInput href="#input_atendimentoRN"/>
     </informationRequirement>
@@ -77,7 +80,8 @@
   </decision>
 
   <!-- Decision 2: Necessidade de Autorização -->
-  <decision id="decision_necessita_autorizacao" name="Verificar Necessidade de Autorização">
+  <decision id="decision_necessita_autorizacao" name="verificarNecessidadeAutorizacao">
+    <variable name="verificarNecessidadeAutorizacao" typeRef="Any"/>
     <informationRequirement>
       <requiredInput href="#input_tipoGuia"/>
     </informationRequirement>
@@ -177,7 +181,8 @@
   </decision>
 
   <!-- Decision 3: Processamento de Glosa -->
-  <decision id="decision_processar_glosa" name="Processar Glosa">
+  <decision id="decision_processar_glosa" name="processarGlosa">
+    <variable name="processarGlosa" typeRef="Any"/>
     <informationRequirement>
       <requiredInput href="#input_possuiGlosa"/>
     </informationRequirement>
@@ -295,7 +300,8 @@
   </decision>
 
   <!-- Decision 4: Status do Protocolo -->
-  <decision id="decision_status_protocolo" name="Determinar Status do Protocolo">
+  <decision id="decision_status_protocolo" name="determinarStatusProtocolo">
+    <variable name="determinarStatusProtocolo" typeRef="Any"/>
     <informationRequirement>
       <requiredInput href="#input_statusProtocolo"/>
     </informationRequirement>
@@ -409,7 +415,8 @@
   </decision>
 
   <!-- Decision 5: Fluxo de Cancelamento -->
-  <decision id="decision_cancelamento" name="Processar Cancelamento">
+  <decision id="decision_cancelamento" name="processarCancelamento">
+    <variable name="processarCancelamento" typeRef="Any"/>
     <informationRequirement>
       <requiredInput href="#input_statusProtocolo"/>
     </informationRequirement>
@@ -493,7 +500,8 @@
   </decision>
 
   <!-- Decision 6: Tipo de Demonstrativo -->
-  <decision id="decision_tipo_demonstrativo" name="Determinar Tipo de Demonstrativo">
+  <decision id="decision_tipo_demonstrativo" name="determinarTipoDemonstrativo">
+    <variable name="determinarTipoDemonstrativo" typeRef="Any"/>
     <informationRequirement>
       <requiredInput href="#input_tipoGuia"/>
     </informationRequirement>
@@ -534,7 +542,7 @@
           <text>"PROCESSADO"</text>
         </inputEntry>
         <inputEntry>
-          <text>not("ODONTO")</text>
+          <text>not("ODONTO" = tipoGuia)</text>
         </inputEntry>
         <outputEntry>
           <text>"DEMONSTRATIVO_PAGAMENTO_MEDICO"</text>
@@ -553,7 +561,7 @@
         </inputEntry>
         <outputEntry>
           <text>"DEMONSTRATIVO_ANALISE_CONTA"</text>
-        </outputEntry>
+        </outputEntry>/
         <outputEntry>
           <text>true</text>
         </outputEntry>
@@ -577,7 +585,8 @@
   </decision>
 
   <!-- Decision 7: Validação de Documentos -->
-  <decision id="decision_validacao_documentos" name="Validar Documentos Anexos">
+  <decision id="decision_validacao_documentos" name="validarDocumentosAnexos">
+    <variable name="validarDocumentosAnexos" typeRef="Any"/>
     <informationRequirement>
       <requiredInput href="#input_tipoGuia"/>
     </informationRequirement>

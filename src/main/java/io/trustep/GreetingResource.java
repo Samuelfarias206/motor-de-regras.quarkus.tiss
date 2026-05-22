@@ -1,5 +1,7 @@
 package io.trustep;
 
+import io.trustep.input.TissInput;
+import io.trustep.services.TissDecisionService;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -12,6 +14,8 @@ import jakarta.ws.rs.core.MediaType;
 import java.util.Map;
 
 @Path("/glosa")
+@Consumes(MediaType.APPLICATION_JSON)
+@Produces(MediaType.APPLICATION_JSON)
 public class GreetingResource {
 
     @GET
@@ -37,4 +41,15 @@ public class GreetingResource {
 //        var ctx = MapDataContext.from(payload);
 //        return svc.evaluate(id, ctx);
 //    }
+
+    @Inject
+    TissDecisionService service;
+
+    @POST
+    @Path("/avaliar")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Map<String, Object> avaliar(TissInput dto) {
+        return service.avaliar(dto);
+    }
 }

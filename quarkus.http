@@ -1,0 +1,65 @@
+### Avaliação DMN - Internação com glosa parcial
+
+POST http://localhost:8080/glosa/avaliar
+Content-Type: application/json
+
+{
+  "tipoGuia": "INTERNACAO",
+  "statusProtocolo": "RECEBIDO",
+  "valorGuia": 1000,
+  "possuiGlosa": true,
+  "tipoGlosa": "GLOSA_PARCIAL",
+  "atendimentoRN": true,
+  "possuiAutorizacao": true
+}
+
+###
+
+### Avaliação DMN - OPME sem glosa
+
+POST http://localhost:8080/glosa/avaliar
+Content-Type: application/json
+
+{
+  "tipoGuia": "OPME",
+  "statusProtocolo": "PROCESSADO",
+  "valorGuia": 2500,
+  "possuiGlosa": false,
+  "tipoGlosa": null,
+  "atendimentoRN": true,
+  "possuiAutorizacao": true
+}
+
+###
+
+### Avaliação DMN - Beneficiário inelegível
+
+POST http://localhost:8080/glosa/avaliar
+Content-Type: application/json
+
+{
+  "tipoGuia": "CONSULTA",
+  "statusProtocolo": "RECEBIDO",
+  "valorGuia": 150,
+  "possuiGlosa": false,
+  "tipoGlosa": null,
+  "atendimentoRN": false,
+  "possuiAutorizacao": false
+}
+
+###
+
+### Avaliação DMN - Guia rejeitada
+
+POST http://localhost:8080/glosa/avaliar
+Content-Type: application/json
+
+{
+  "tipoGuia": "SADT",
+  "statusProtocolo": "REJEITADO",
+  "valorGuia": 500,
+  "possuiGlosa": true,
+  "tipoGlosa": "GLOSA_TOTAL",
+  "atendimentoRN": true,
+  "possuiAutorizacao": false
+}
