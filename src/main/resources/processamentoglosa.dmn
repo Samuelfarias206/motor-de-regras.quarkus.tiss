@@ -1,0 +1,667 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/"
+             xmlns:dmndi="https://www.omg.org/spec/DMN/20191111/DMNDI/"
+             xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/"
+             xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/"
+             id="tiss_decisions"
+             name="TISS - Decisões de Processamento de Guias"
+             namespace="http://www.ans.gov.br/padroes/tiss/dmn/v4_00_00">
+
+  <!-- Input Data -->
+  <inputData id="input_tipoGuia" name="Tipo de Guia">
+    <variable name="tipoGuia" typeRef="string"/>
+  </inputData>
+
+  <inputData id="input_statusProtocolo" name="Status do Protocolo">
+    <variable name="statusProtocolo" typeRef="string"/>
+  </inputData>
+
+  <inputData id="input_valorGuia" name="Valor da Guia">
+    <variable name="valorGuia" typeRef="number"/>
+  </inputData>
+
+  <inputData id="input_possuiGlosa" name="Possui Glosa">
+    <variable name="possuiGlosa" typeRef="boolean"/>
+  </inputData>
+
+  <inputData id="input_tipoGlosa" name="Tipo de Glosa">
+    <variable name="tipoGlosa" typeRef="string"/>
+  </inputData>
+
+  <inputData id="input_atendimentoRN" name="Atendimento RN">
+    <variable name="atendimentoRN" typeRef="boolean"/>
+  </inputData>
+
+  <inputData id="input_possuiAutorizacao" name="Possui Autorização">
+    <variable name="possuiAutorizacao" typeRef="boolean"/>
+  </inputData>
+
+  <!-- Decision 1: Validação de Elegibilidade -->
+  <decision id="decision_elegibilidade" name="Validar Elegibilidade do Beneficiário">
+    <informationRequirement>
+      <requiredInput href="#input_atendimentoRN"/>
+    </informationRequirement>
+    <decisionTable id="dt_elegibilidade" hitPolicy="FIRST">
+      <input id="input_elegib_1">
+        <inputExpression typeRef="boolean">
+          <text>atendimentoRN</text>
+        </inputExpression>
+      </input>
+      <output id="output_elegib_1" name="elegivel" typeRef="boolean"/>
+      <output id="output_elegib_2" name="mensagem" typeRef="string"/>
+
+      <rule id="rule_elegib_1">
+        <inputEntry>
+          <text>true</text>
+        </inputEntry>
+        <outputEntry>
+          <text>true</text>
+        </outputEntry>
+        <outputEntry>
+          <text>"Beneficiário elegível para atendimento"</text>
+        </outputEntry>
+      </rule>
+
+      <rule id="rule_elegib_2">
+        <inputEntry>
+          <text>false</text>
+        </inputEntry>
+        <outputEntry>
+          <text>false</text>
+        </outputEntry>
+        <outputEntry>
+          <text>"Beneficiário não elegível - Verificar carteira"</text>
+        </outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+
+  <!-- Decision 2: Necessidade de Autorização -->
+  <decision id="decision_necessita_autorizacao" name="Verificar Necessidade de Autorização">
+    <informationRequirement>
+      <requiredInput href="#input_tipoGuia"/>
+    </informationRequirement>
+    <decisionTable id="dt_necessita_autorizacao" hitPolicy="FIRST">
+      <input id="input_aut_1">
+        <inputExpression typeRef="string">
+          <text>tipoGuia</text>
+        </inputExpression>
+      </input>
+      <output id="output_aut_1" name="necessitaAutorizacao" typeRef="boolean"/>
+      <output id="output_aut_2" name="tipoAutorizacao" typeRef="string"/>
+
+      <rule id="rule_aut_1">
+        <inputEntry>
+          <text>"INTERNACAO"</text>
+        </inputEntry>
+        <outputEntry>
+          <text>true</text>
+        </outputEntry>
+        <outputEntry>
+          <text>"Autorização de Internação Obrigatória"</text>
+        </outputEntry>
+      </rule>
+
+      <rule id="rule_aut_2">
+        <inputEntry>
+          <text>"SADT"</text>
+        </inputEntry>
+        <outputEntry>
+          <text>true</text>
+        </outputEntry>
+        <outputEntry>
+          <text>"Autorização de SADT"</text>
+        </outputEntry>
+      </rule>
+
+      <rule id="rule_aut_3">
+        <inputEntry>
+          <text>"QUIMIOTERAPIA"</text>
+        </inputEntry>
+        <outputEntry>
+          <text>true</text>
+        </outputEntry>
+        <outputEntry>
+          <text>"Autorização de Quimioterapia"</text>
+        </outputEntry>
+      </rule>
+
+      <rule id="rule_aut_4">
+        <inputEntry>
+          <text>"RADIOTERAPIA"</text>
+        </inputEntry>
+        <outputEntry>
+          <text>true</text>
+        </outputEntry>
+        <outputEntry>
+          <text>"Autorização de Radioterapia"</text>
+        </outputEntry>
+      </rule>
+
+      <rule id="rule_aut_5">
+        <inputEntry>
+          <text>"OPME"</text>
+        </inputEntry>
+        <outputEntry>
+          <text>true</text>
+        </outputEntry>
+        <outputEntry>
+          <text>"Autorização de OPME"</text>
+        </outputEntry>
+      </rule>
+
+      <rule id="rule_aut_6">
+        <inputEntry>
+          <text>"CONSULTA"</text>
+        </inputEntry>
+        <outputEntry>
+          <text>false</text>
+        </outputEntry>
+        <outputEntry>
+          <text>"Não requer autorização prévia"</text>
+        </outputEntry>
+      </rule>
+
+      <rule id="rule_aut_7">
+        <inputEntry>
+          <text>"ODONTO"</text>
+        </inputEntry>
+        <outputEntry>
+          <text>false</text>
+        </outputEntry>
+        <outputEntry>
+          <text>"Não requer autorização prévia"</text>
+        </outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+
+  <!-- Decision 3: Processamento de Glosa -->
+  <decision id="decision_processar_glosa" name="Processar Glosa">
+    <informationRequirement>
+      <requiredInput href="#input_possuiGlosa"/>
+    </informationRequirement>
+    <informationRequirement>
+      <requiredInput href="#input_tipoGlosa"/>
+    </informationRequirement>
+    <informationRequirement>
+      <requiredInput href="#input_valorGuia"/>
+    </informationRequirement>
+    <decisionTable id="dt_processar_glosa" hitPolicy="FIRST">
+      <input id="input_glosa_1">
+        <inputExpression typeRef="boolean">
+          <text>possuiGlosa</text>
+        </inputExpression>
+      </input>
+      <input id="input_glosa_2">
+        <inputExpression typeRef="string">
+          <text>tipoGlosa</text>
+        </inputExpression>
+      </input>
+      <output id="output_glosa_1" name="statusGlosa" typeRef="string"/>
+      <output id="output_glosa_2" name="permiteRecurso" typeRef="boolean"/>
+      <output id="output_glosa_3" name="valorLiberado" typeRef="number"/>
+
+      <rule id="rule_glosa_1">
+        <inputEntry>
+          <text>false</text>
+        </inputEntry>
+        <inputEntry>
+          <text>-</text>
+        </inputEntry>
+        <outputEntry>
+          <text>"SEM_GLOSA"</text>
+        </outputEntry>
+        <outputEntry>
+          <text>false</text>
+        </outputEntry>
+        <outputEntry>
+          <text>valorGuia</text>
+        </outputEntry>
+      </rule>
+
+      <rule id="rule_glosa_2">
+        <inputEntry>
+          <text>true</text>
+        </inputEntry>
+        <inputEntry>
+          <text>"GLOSA_TOTAL"</text>
+        </inputEntry>
+        <outputEntry>
+          <text>"GLOSADO_TOTALMENTE"</text>
+        </outputEntry>
+        <outputEntry>
+          <text>true</text>
+        </outputEntry>
+        <outputEntry>
+          <text>0</text>
+        </outputEntry>
+      </rule>
+
+      <rule id="rule_glosa_3">
+        <inputEntry>
+          <text>true</text>
+        </inputEntry>
+        <inputEntry>
+          <text>"GLOSA_PARCIAL"</text>
+        </inputEntry>
+        <outputEntry>
+          <text>"GLOSADO_PARCIALMENTE"</text>
+        </outputEntry>
+        <outputEntry>
+          <text>true</text>
+        </outputEntry>
+        <outputEntry>
+          <text>valorGuia * 0.5</text>
+        </outputEntry>
+      </rule>
+
+      <rule id="rule_glosa_4">
+        <inputEntry>
+          <text>true</text>
+        </inputEntry>
+        <inputEntry>
+          <text>"GLOSA_ADMINISTRATIVA"</text>
+        </inputEntry>
+        <outputEntry>
+          <text>"GLOSA_ADMINISTRATIVA"</text>
+        </outputEntry>
+        <outputEntry>
+          <text>true</text>
+        </outputEntry>
+        <outputEntry>
+          <text>valorGuia * 0.8</text>
+        </outputEntry>
+      </rule>
+
+      <rule id="rule_glosa_5">
+        <inputEntry>
+          <text>true</text>
+        </inputEntry>
+        <inputEntry>
+          <text>"GLOSA_TECNICA"</text>
+        </inputEntry>
+        <outputEntry>
+          <text>"GLOSA_TECNICA"</text>
+        </outputEntry>
+        <outputEntry>
+          <text>true</text>
+        </outputEntry>
+        <outputEntry>
+          <text>valorGuia * 0.7</text>
+        </outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+
+  <!-- Decision 4: Status do Protocolo -->
+  <decision id="decision_status_protocolo" name="Determinar Status do Protocolo">
+    <informationRequirement>
+      <requiredInput href="#input_statusProtocolo"/>
+    </informationRequirement>
+    <informationRequirement>
+      <requiredInput href="#input_possuiAutorizacao"/>
+    </informationRequirement>
+    <decisionTable id="dt_status_protocolo" hitPolicy="FIRST">
+      <input id="input_status_1">
+        <inputExpression typeRef="string">
+          <text>statusProtocolo</text>
+        </inputExpression>
+      </input>
+      <input id="input_status_2">
+        <inputExpression typeRef="boolean">
+          <text>possuiAutorizacao</text>
+        </inputExpression>
+      </input>
+      <output id="output_status_1" name="statusFinal" typeRef="string"/>
+      <output id="output_status_2" name="acaoNecessaria" typeRef="string"/>
+
+      <rule id="rule_status_1">
+        <inputEntry>
+          <text>"RECEBIDO"</text>
+        </inputEntry>
+        <inputEntry>
+          <text>true</text>
+        </inputEntry>
+        <outputEntry>
+          <text>"EM_PROCESSAMENTO"</text>
+        </outputEntry>
+        <outputEntry>
+          <text>"Iniciar análise técnica"</text>
+        </outputEntry>
+      </rule>
+
+      <rule id="rule_status_2">
+        <inputEntry>
+          <text>"RECEBIDO"</text>
+        </inputEntry>
+        <inputEntry>
+          <text>false</text>
+        </inputEntry>
+        <outputEntry>
+          <text>"AGUARDANDO_AUTORIZACAO"</text>
+        </outputEntry>
+        <outputEntry>
+          <text>"Solicitar autorização"</text>
+        </outputEntry>
+      </rule>
+
+      <rule id="rule_status_3">
+        <inputEntry>
+          <text>"EM_ANALISE"</text>
+        </inputEntry>
+        <inputEntry>
+          <text>-</text>
+        </inputEntry>
+        <outputEntry>
+          <text>"ANALISE_TECNICA"</text>
+        </outputEntry>
+        <outputEntry>
+          <text>"Realizar avaliação técnica"</text>
+        </outputEntry>
+      </rule>
+
+      <rule id="rule_status_4">
+        <inputEntry>
+          <text>"PROCESSADO"</text>
+        </inputEntry>
+        <inputEntry>
+          <text>-</text>
+        </inputEntry>
+        <outputEntry>
+          <text>"PROCESSADO"</text>
+        </outputEntry>
+        <outputEntry>
+          <text>"Gerar demonstrativo de pagamento"</text>
+        </outputEntry>
+      </rule>
+
+      <rule id="rule_status_5">
+        <inputEntry>
+          <text>"PAGO"</text>
+        </inputEntry>
+        <inputEntry>
+          <text>-</text>
+        </inputEntry>
+        <outputEntry>
+          <text>"FINALIZADO"</text>
+        </outputEntry>
+        <outputEntry>
+          <text>"Arquivar protocolo"</text>
+        </outputEntry>
+      </rule>
+
+      <rule id="rule_status_6">
+        <inputEntry>
+          <text>"REJEITADO"</text>
+        </inputEntry>
+        <inputEntry>
+          <text>-</text>
+        </inputEntry>
+        <outputEntry>
+          <text>"REJEITADO"</text>
+        </outputEntry>
+        <outputEntry>
+          <text>"Notificar prestador sobre rejeição"</text>
+        </outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+
+  <!-- Decision 5: Fluxo de Cancelamento -->
+  <decision id="decision_cancelamento" name="Processar Cancelamento">
+    <informationRequirement>
+      <requiredInput href="#input_statusProtocolo"/>
+    </informationRequirement>
+    <informationRequirement>
+      <requiredInput href="#input_tipoGuia"/>
+    </informationRequirement>
+    <decisionTable id="dt_cancelamento" hitPolicy="FIRST">
+      <input id="input_cancel_1">
+        <inputExpression typeRef="string">
+          <text>statusProtocolo</text>
+        </inputExpression>
+      </input>
+      <input id="input_cancel_2">
+        <inputExpression typeRef="string">
+          <text>tipoGuia</text>
+        </inputExpression>
+      </input>
+      <output id="output_cancel_1" name="permiteCancelamento" typeRef="boolean"/>
+      <output id="output_cancel_2" name="motivoCancelamento" typeRef="string"/>
+
+      <rule id="rule_cancel_1">
+        <inputEntry>
+          <text>"RECEBIDO"</text>
+        </inputEntry>
+        <inputEntry>
+          <text>-</text>
+        </inputEntry>
+        <outputEntry>
+          <text>true</text>
+        </outputEntry>
+        <outputEntry>
+          <text>"Cancelamento permitido - Protocolo ainda não processado"</text>
+        </outputEntry>
+      </rule>
+
+      <rule id="rule_cancel_2">
+        <inputEntry>
+          <text>"EM_ANALISE"</text>
+        </inputEntry>
+        <inputEntry>
+          <text>-</text>
+        </inputEntry>
+        <outputEntry>
+          <text>true</text>
+        </outputEntry>
+        <outputEntry>
+          <text>"Cancelamento permitido - Análise em andamento"</text>
+        </outputEntry>
+      </rule>
+
+      <rule id="rule_cancel_3">
+        <inputEntry>
+          <text>"PROCESSADO"</text>
+        </inputEntry>
+        <inputEntry>
+          <text>-</text>
+        </inputEntry>
+        <outputEntry>
+          <text>false</text>
+        </outputEntry>
+        <outputEntry>
+          <text>"Cancelamento não permitido - Protocolo já processado"</text>
+        </outputEntry>
+      </rule>
+
+      <rule id="rule_cancel_4">
+        <inputEntry>
+          <text>"PAGO"</text>
+        </inputEntry>
+        <inputEntry>
+          <text>-</text>
+        </inputEntry>
+        <outputEntry>
+          <text>false</text>
+        </outputEntry>
+        <outputEntry>
+          <text>"Cancelamento não permitido - Pagamento já realizado"</text>
+        </outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+
+  <!-- Decision 6: Tipo de Demonstrativo -->
+  <decision id="decision_tipo_demonstrativo" name="Determinar Tipo de Demonstrativo">
+    <informationRequirement>
+      <requiredInput href="#input_tipoGuia"/>
+    </informationRequirement>
+    <informationRequirement>
+      <requiredInput href="#input_statusProtocolo"/>
+    </informationRequirement>
+    <decisionTable id="dt_tipo_demonstrativo" hitPolicy="FIRST">
+      <input id="input_demo_1">
+        <inputExpression typeRef="string">
+          <text>statusProtocolo</text>
+        </inputExpression>
+      </input>
+      <input id="input_demo_2">
+        <inputExpression typeRef="string">
+          <text>tipoGuia</text>
+        </inputExpression>
+      </input>
+      <output id="output_demo_1" name="tipoDemonstrativo" typeRef="string"/>
+      <output id="output_demo_2" name="incluiDetalhamento" typeRef="boolean"/>
+
+      <rule id="rule_demo_1">
+        <inputEntry>
+          <text>"PROCESSADO"</text>
+        </inputEntry>
+        <inputEntry>
+          <text>"ODONTO"</text>
+        </inputEntry>
+        <outputEntry>
+          <text>"DEMONSTRATIVO_PAGAMENTO_ODONTO"</text>
+        </outputEntry>
+        <outputEntry>
+          <text>true</text>
+        </outputEntry>
+      </rule>
+
+      <rule id="rule_demo_2">
+        <inputEntry>
+          <text>"PROCESSADO"</text>
+        </inputEntry>
+        <inputEntry>
+          <text>not("ODONTO")</text>
+        </inputEntry>
+        <outputEntry>
+          <text>"DEMONSTRATIVO_PAGAMENTO_MEDICO"</text>
+        </outputEntry>
+        <outputEntry>
+          <text>true</text>
+        </outputEntry>
+      </rule>
+
+      <rule id="rule_demo_3">
+        <inputEntry>
+          <text>"EM_ANALISE"</text>
+        </inputEntry>
+        <inputEntry>
+          <text>-</text>
+        </inputEntry>
+        <outputEntry>
+          <text>"DEMONSTRATIVO_ANALISE_CONTA"</text>
+        </outputEntry>
+        <outputEntry>
+          <text>true</text>
+        </outputEntry>
+      </rule>
+
+      <rule id="rule_demo_4">
+        <inputEntry>
+          <text>"REJEITADO"</text>
+        </inputEntry>
+        <inputEntry>
+          <text>-</text>
+        </inputEntry>
+        <outputEntry>
+          <text>"DEMONSTRATIVO_REJEICAO"</text>
+        </outputEntry>
+        <outputEntry>
+          <text>false</text>
+        </outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+
+  <!-- Decision 7: Validação de Documentos -->
+  <decision id="decision_validacao_documentos" name="Validar Documentos Anexos">
+    <informationRequirement>
+      <requiredInput href="#input_tipoGuia"/>
+    </informationRequirement>
+    <decisionTable id="dt_validacao_documentos" hitPolicy="COLLECT">
+      <input id="input_doc_1">
+        <inputExpression typeRef="string">
+          <text>tipoGuia</text>
+        </inputExpression>
+      </input>
+      <output id="output_doc_1" name="documentoObrigatorio" typeRef="string"/>
+      <output id="output_doc_2" name="formato" typeRef="string"/>
+
+      <rule id="rule_doc_1">
+        <inputEntry>
+          <text>"INTERNACAO"</text>
+        </inputEntry>
+        <outputEntry>
+          <text>"RELATORIO_MEDICO"</text>
+        </outputEntry>
+        <outputEntry>
+          <text>"PDF"</text>
+        </outputEntry>
+      </rule>
+
+      <rule id="rule_doc_2">
+        <inputEntry>
+          <text>"OPME"</text>
+        </inputEntry>
+        <outputEntry>
+          <text>"NOTA_FISCAL"</text>
+        </outputEntry>
+        <outputEntry>
+          <text>"PDF/XML"</text>
+        </outputEntry>
+      </rule>
+
+      <rule id="rule_doc_3">
+        <inputEntry>
+          <text>"OPME"</text>
+        </inputEntry>
+        <outputEntry>
+          <text>"REGISTRO_ANVISA"</text>
+        </outputEntry>
+        <outputEntry>
+          <text>"PDF"</text>
+        </outputEntry>
+      </rule>
+
+      <rule id="rule_doc_4">
+        <inputEntry>
+          <text>"QUIMIOTERAPIA"</text>
+        </inputEntry>
+        <outputEntry>
+          <text>"LAUDO_MEDICO"</text>
+        </outputEntry>
+        <outputEntry>
+          <text>"PDF"</text>
+        </outputEntry>
+      </rule>
+
+      <rule id="rule_doc_5">
+        <inputEntry>
+          <text>"RADIOTERAPIA"</text>
+        </inputEntry>
+        <outputEntry>
+          <text>"PLANEJAMENTO_RADIOTERAPICO"</text>
+        </outputEntry>
+        <outputEntry>
+          <text>"PDF"</text>
+        </outputEntry>
+      </rule>
+
+      <rule id="rule_doc_6">
+        <inputEntry>
+          <text>"SADT"</text>
+        </inputEntry>
+        <outputEntry>
+          <text>"SOLICITACAO_MEDICA"</text>
+        </outputEntry>
+        <outputEntry>
+          <text>"PDF"</text>
+        </outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+
+</definitions>
