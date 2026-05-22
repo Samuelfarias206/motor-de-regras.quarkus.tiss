@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema
+        xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        targetNamespace="https://tiss/schema"
+        xmlns="https://tiss/schema"
+        elementFormDefault="qualified">
+
+    <!-- ===================================================== -->
+    <!-- ENUMS                                                 -->
+    <!-- ===================================================== -->
+
+    <xs:simpleType name="TipoGuiaType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="INTERNACAO"/>
+            <xs:enumeration value="SADT"/>
+            <xs:enumeration value="QUIMIOTERAPIA"/>
+            <xs:enumeration value="RADIOTERAPIA"/>
+            <xs:enumeration value="OPME"/>
+            <xs:enumeration value="CONSULTA"/>
+            <xs:enumeration value="ODONTO"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="StatusProtocoloType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="RECEBIDO"/>
+            <xs:enumeration value="EM_ANALISE"/>
+            <xs:enumeration value="PROCESSADO"/>
+            <xs:enumeration value="PAGO"/>
+            <xs:enumeration value="REJEITADO"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="TipoGlosaType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="GLOSA_TOTAL"/>
+            <xs:enumeration value="GLOSA_PARCIAL"/>
+            <xs:enumeration value="GLOSA_ADMINISTRATIVA"/>
+            <xs:enumeration value="GLOSA_TECNICA"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- ===================================================== -->
+    <!-- REQUEST                                               -->
+    <!-- ===================================================== -->
+
+    <xs:element name="GuiaTISSRequest">
+        <xs:complexType>
+            <xs:sequence>
+
+                <xs:element
+                        name="tipoGuia"
+                        type="TipoGuiaType"/>
+
+                <xs:element
+                        name="statusProtocolo"
+                        type="StatusProtocoloType"/>
+
+                <xs:element
+                        name="valorGuia"
+                        type="xs:decimal"/>
+
+                <xs:element
+                        name="possuiGlosa"
+                        type="xs:boolean"/>
+
+                <xs:element
+                        name="tipoGlosa"
+                        type="TipoGlosaType"
+                        minOccurs="0"/>
+
+                <xs:element
+                        name="atendimentoRN"
+                        type="xs:boolean"/>
+
+                <xs:element
+                        name="possuiAutorizacao"
+                        type="xs:boolean"/>
+
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- ===================================================== -->
+    <!-- RESPONSE                                              -->
+    <!-- ===================================================== -->
+
+    <xs:element name="GuiaTISSResponse">
+        <xs:complexType>
+            <xs:sequence>
+
+                <!-- Elegibilidade -->
+                <xs:element name="elegibilidade">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="elegivel" type="xs:boolean"/>
+                            <xs:element name="mensagem" type="xs:string"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+
+                <!-- Autorização -->
+                <xs:element name="autorizacao">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="necessitaAutorizacao" type="xs:boolean"/>
+                            <xs:element name="tipoAutorizacao" type="xs:string"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+
+                <!-- Glosa -->
+                <xs:element name="glosa">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="statusGlosa" type="xs:string"/>
+                            <xs:element name="permiteRecurso" type="xs:boolean"/>
+                            <xs:element name="valorLiberado" type="xs:decimal"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+
+                <!-- Status Protocolo -->
+                <xs:element name="statusProtocoloResultado">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="statusFinal" type="xs:string"/>
+                            <xs:element name="acaoNecessaria" type="xs:string"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+
+                <!-- Cancelamento -->
+                <xs:element name="cancelamento">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="permiteCancelamento" type="xs:boolean"/>
+                            <xs:element name="motivoCancelamento" type="xs:string"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+
+                <!-- Demonstrativo -->
+                <xs:element name="demonstrativo">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="tipoDemonstrativo" type="xs:string"/>
+                            <xs:element name="incluiDetalhamento" type="xs:boolean"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+
+                <!-- Documentos -->
+                <xs:element name="documentosObrigatorios">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element
+                                    name="documento"
+                                    maxOccurs="unbounded">
+
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element
+                                                name="documentoObrigatorio"
+                                                type="xs:string"/>
+
+                                        <xs:element
+                                                name="formato"
+                                                type="xs:string"/>
+                                    </xs:sequence>
+                                </xs:complexType>
+
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>

@@ -14,8 +14,6 @@ import jakarta.ws.rs.core.MediaType;
 import java.util.Map;
 
 @Path("/glosa")
-@Consumes(MediaType.APPLICATION_JSON)
-@Produces(MediaType.APPLICATION_JSON)
 public class GreetingResource {
 
     @GET
@@ -48,8 +46,8 @@ public class GreetingResource {
     @POST
     @Path("/avaliar")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Map<String, Object> avaliar(TissInput dto) {
-        return service.avaliar(dto);
+    @Produces(MediaType.APPLICATION_XML)
+    public String avaliar(TissInput dto) {
+        return service.processarTiss(dto);
     }
 }
