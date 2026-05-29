@@ -1,9 +1,5 @@
 package io.trustep.input;
 
-import io.trustep.status.StatusProtocolo;
-import io.trustep.status.TipoGlosa;
-import io.trustep.status.TipoGuia;
-
 import java.math.BigDecimal;
 
 import lombok.Builder;
@@ -19,16 +15,10 @@ import lombok.Setter;
 @Builder
 public class TissInput {
     private String tipoGuia;
-
     private String statusProtocolo;
-
     private BigDecimal valorGuia;
-
-    private Boolean possuiGlosa;
-
+    private boolean possuiGlosa;
     private String tipoGlosa;
-
-    private Boolean atendimentoRN;
-
-    private Boolean possuiAutorizacao;
+    private boolean atendimentoRN;
+    private boolean possuiAutorizacao;
 }

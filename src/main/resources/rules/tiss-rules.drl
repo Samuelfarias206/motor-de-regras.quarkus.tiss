@@ -1,0 +1,45 @@
+package io.trustep.rules
+
+import io.trustep.input.TissInput;
+import io.trustep.dto.Elegibilidade;
+import io.trustep.dto.Autorizacao;
+import io.trustep.dto.Glosa;
+
+// Regra: se atendimentoRN for true, marca elegibilidade
+rule "Elegibilidade - atendimento RN"
+when
+    $in : TissInput(atendimentoRN == true)
+    $e : Elegibilidade(elegivel == false)
+then
+    $e.setElegivel(true);
+    $e.setMensagem("Beneficiário elegível por RN");
+    update($e);
+end
+
+// Regra: se tipoGuia == 'INTERNACAO' então necessita autorizacao
+rule "Autorizacao - internacao"
+when
+    $in : TissInput(tipoGuia == "INTERNACAO")
+    $a : Autorizacao(necessitaAutorizacao == false)
+then
+    $a.setNecessitaAutorizacao(true);
+    $a.setTipoAutorizacao("Autorização para internação");
+    update($a);
+end
+
+// Regra: se possuiGlosa true então marca glosa e reduz 20% do valor
+rule "Glosa - aplicar desconto"
+when
+    $in : TissInput(possuiGlosa == true, valorGuia != null)
+    $g : Glosa(statusGlosa == "SEM_GLOSA")
+then
+    $g.setStatusGlosa("GLOSADO");
+    $g.setPermiteRecurso(true);
+    if ($in.getValorGuia() != null) {
+        java.math.BigDecimal original = $in.getValorGuia();
+        java.math.BigDecimal desconto = original.multiply(new java.math.BigDecimal("0.20"));
+        $g.setValorLiberado(original.subtract(desconto));
+    }
+    update($g);
+end
+
