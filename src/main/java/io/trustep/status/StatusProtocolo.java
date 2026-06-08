@@ -1,9 +1,23 @@
 package io.trustep.status;
 
 public enum StatusProtocolo {
+    // Etapa 1 – Receber Guia
     RECEBIDO,
+    // Etapa 2 – Receber Anexos
+    ANEXOS_RECEBIDOS,
+    // Etapa 3 – Validar Documentação
+    DOCUMENTACAO_VALIDADA,
+    PENDENTE_DOCUMENTACAO,
+    // Etapa 4 – Aprovar Conta
     EM_ANALISE,
-    PROCESSADO,
+    APROVADA,
+    GLOSADA,
+    REJEITADO,
+    // Etapa 5 – Demonstrativo gerado
+    DEMONSTRATIVO_GERADO,
+    // Etapa 6 – Financeiro
+    AGUARDANDO_PAGAMENTO,
+    // Etapa 7 – Pagamento
     PAGO,
-    REJEITADO
+    PROCESSADO
 }

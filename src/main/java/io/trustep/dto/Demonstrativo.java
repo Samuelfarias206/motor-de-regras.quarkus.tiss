@@ -14,4 +14,6 @@ import lombok.Setter;
 public class Demonstrativo {
     private String tipoDemonstrativo;
     private boolean incluiDetalhamento;
+    /** PDF em base64 gerado na Etapa 5 — spec §5. */
+    private String arquivoPdf;
 }

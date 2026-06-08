@@ -17,4 +17,8 @@ public class Glosa {
     private String statusGlosa;
     private boolean permiteRecurso;
     private BigDecimal valorLiberado;
+    /** Tipo da glosa aplicada (ex: GLOSA_PARCIAL, GLOSA_TOTAL) — spec §4. */
+    private String tipoGlosa;
+    /** Valor aprovado após desconto da glosa — spec §4. */
+    private BigDecimal valorAprovado;
 }
