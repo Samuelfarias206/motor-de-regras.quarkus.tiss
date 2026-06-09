@@ -1,5 +1,9 @@
 package io.trustep.services;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import io.trustep.dto.Autorizacao;
 import io.trustep.dto.ContaFato;
 import io.trustep.dto.Elegibilidade;
@@ -17,7 +21,10 @@ import io.trustep.response.PagamentoResponse;
 import io.trustep.response.ProtocoloResponse;
 import io.trustep.store.ProtocoloState;
 import io.trustep.store.ProtocoloStore;
+import io.trustep.utils.DroolsRulesProcessor;
+import io.trustep.utils.TransformerUtil;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import lombok.RequiredArgsConstructor;
 import org.kie.api.KieBase;
 import org.kie.api.runtime.KieSession;
@@ -28,7 +35,8 @@ import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Serviço principal do fluxo TISS.
@@ -47,6 +55,9 @@ public class TissDecisionService {
 
     /** Store em memória que correlaciona protocolo ↔ estado do fluxo. */
     private final ProtocoloStore protocoloStore;
+
+    @Inject
+    DroolsRulesProcessor droolsRulesProcessor;
 
     /**
      * Documentos obrigatórios por tipo de guia — spec §3 (tabela DMN).
@@ -140,7 +151,7 @@ public class TissDecisionService {
         List<String> tipos = input.getAnexos() == null ? List.of() :
                 input.getAnexos().stream()
                         .map(a -> a.getTipoDocumento())
-                        .collect(Collectors.toList());
+                        .collect(toList());
 
         state.getTiposAnexos().addAll(tipos);
         state.setStatus("ANEXOS_RECEBIDOS");
@@ -168,7 +179,7 @@ public class TissDecisionService {
 
         List<String> pendencias = docsNecessarios.stream()
                 .filter(doc -> !state.getTiposAnexos().contains(doc))
-                .collect(Collectors.toList());
+                .collect(toList());
 
         if (pendencias.isEmpty()) {
             state.setStatus("DOCUMENTACAO_VALIDADA");
@@ -353,15 +364,52 @@ public class TissDecisionService {
     }
 
     public String processarCSV(InputStream csv) {
-        final var reader = new BufferedReader(new InputStreamReader(csv));
+//        final var reader = new BufferedReader(new InputStreamReader(csv));
+//        String[] cabecalho;
+//        String[] linha;
+//        final var listaMapaGuias = new ArrayList<Map<String, String>>();
         try {
-            List<String> list = Collections.singletonList(reader.readLine());
+//            final var resp = mapper.readValue(csv, List.class);
+////            final var listaGuias = Collections.singletonList(reader.readLine());
+//            cabecalho = reader.readLine().split(",");
+//            final var mapaGuia = new HashMap<String, String>();
+//            reader.lines().forEach(linha -> {
+//                final var valoresLinha = linha.split(",");
+//                for (int i = 0; i < cabecalho.length; i++) {
+//                    mapaGuia.put(cabecalho[i], valoresLinha[i]);
+//                }
+//                listaMapaGuias.add(mapaGuia);
+//            });
+            CsvMapper mapper = new CsvMapper();
+
+            CsvSchema schema = CsvSchema.emptySchema()
+                    .withHeader();
+
+            List<ContaFato> guias = mapper
+                    .readerFor(ContaFato.class)
+                    .with(schema)
+                    .<ContaFato>readValues(csv)
+                    .readAll();
+
+//            final var contasFatos = listaMapaGuias.stream().map(TransformerUtil::transformerToContaFato).toList();
+            droolsRulesProcessor.processarRegras(Collections.singletonList(guias));
+            guias.stream().forEach(contaFato -> {
+                /**
+                 * Validaçao de anexos para cada guia, verificando
+                 * quais documentos são necessários para
+                 * o tipo de guia e comparando com os anexos enviados
+                 * documentos*/
+            });
+            //validando anexos
+
+            // criar demonstrativos de pagamento para cada guia aprovada e retornar resposta
 
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
         return "";
     }
+
 
     // ─────────────────────────────────────────────────────────────────────────
     // Métodos auxiliares privados
@@ -384,7 +432,7 @@ public class TissDecisionService {
         List<Integer> sequenciais = procedimentos.stream()
                 .map(ProcedimentoRealizado::getSequencialReferencia)
                 .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .collect(toList());
 
         Set<Integer> unicos = new HashSet<>(sequenciais);
         if (unicos.size() < sequenciais.size()) {
