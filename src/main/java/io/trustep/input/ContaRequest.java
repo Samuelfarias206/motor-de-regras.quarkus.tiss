@@ -1,5 +1,7 @@
 package io.trustep.input;
 
+import io.trustep.status.StatusProtocolo;
+import io.trustep.status.TipoGuia;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,7 +21,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class ContaRequest {
-    private String numeroProtocolo;
+    private String numeroProtocolo;//numeroGuia
+    private TipoGuia tipoGuia;
     /** Se o auditor identificou glosa na conta. */
     private boolean possuiGlosa;
     /** Tipo da glosa (GLOSA_PARCIAL, GLOSA_TOTAL, GLOSA_ADMINISTRATIVA, GLOSA_TECNICA). */
@@ -28,4 +31,5 @@ public class ContaRequest {
     private boolean possuiAutorizacao;
     /** Se o atendimento está coberto por Resolução Normativa da ANS. */
     private boolean atendimentoRN;
+    private StatusProtocolo statusProtocolo;
 }
