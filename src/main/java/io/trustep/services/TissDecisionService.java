@@ -22,14 +22,12 @@ import lombok.RequiredArgsConstructor;
 import org.kie.api.KieBase;
 import org.kie.api.runtime.KieSession;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Base64;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -352,6 +350,17 @@ public class TissDecisionService {
                 .valorPago(state.getValorAprovado())
                 .dataPagamento(LocalDate.now().toString())
                 .build();
+    }
+
+    public String processarCSV(InputStream csv) {
+        final var reader = new BufferedReader(new InputStreamReader(csv));
+        try {
+            List<String> list = Collections.singletonList(reader.readLine());
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return "";
     }
 
     // ─────────────────────────────────────────────────────────────────────────

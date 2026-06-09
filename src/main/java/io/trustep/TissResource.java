@@ -19,6 +19,8 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
+import java.io.InputStream;
+
 /**
  * API REST do fluxo de processamento de guias TISS.
  * <p>
@@ -114,4 +116,12 @@ public class TissResource {
     public PagamentoResponse pagamento(ProtocoloRequest request) {
         return service.pagamento(request.getNumeroProtocolo());
     }
+
+    @POST
+    @Path("/enviarcsv")
+    @Consumes("text/csv")
+    public String enviarCSV(InputStream csv) {
+        return service.processarCSV(csv);
+    }
+
 }
