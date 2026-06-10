@@ -4,6 +4,7 @@ import io.trustep.dto.ContaFato;
 import io.trustep.dto.Elegibilidade;
 import io.trustep.dto.Autorizacao;
 import io.trustep.dto.Glosa;
+import io.trustep.drools.models.Procedimento
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ELEGIBILIDADE (Etapa 4 – spec §4: "Validar Elegibilidade do Beneficiário")
@@ -15,9 +16,10 @@ rule "Elegibilidade - atendimento RN"
         $fato : ContaFato(atendimentoRN == true)
         $e    : Elegibilidade(elegivel == false)
     then
-        $e.setElegivel(true);
-        $e.setMensagem("Beneficiário elegível por Resolução Normativa (ANS)");
-        update($e);
+        modify($e){
+            setElegivel(true),
+            setMensagem("Beneficiário elegível por Resolução Normativa (ANS)")
+        };
 end
 
 // Regra: padrão — sem RN o beneficiário ainda é elegível (simplificação;
@@ -27,9 +29,10 @@ rule "Elegibilidade - padrao"
         $fato : ContaFato(atendimentoRN == false)
         $e    : Elegibilidade(elegivel == false)
     then
-        $e.setElegivel(true);
-        $e.setMensagem("Beneficiário elegível");
-        update($e);
+        modify($e){
+            setElegivel(true),
+            setMensagem("Beneficiário elegível")
+        };
 end
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -42,9 +45,10 @@ rule "Autorizacao - internacao"
         $fato : ContaFato(tipoGuia == "INTERNACAO")
         $a    : Autorizacao(necessitaAutorizacao == false)
     then
-        $a.setNecessitaAutorizacao(true);
-        $a.setTipoAutorizacao("Autorização para internação");
-        update($a);
+        modify($a){
+            setNecessitaAutorizacao(true),
+            setTipoAutorizacao("Autorização para internação")
+        };
 end
 
 // Regra: OPME exige autorização prévia
@@ -53,9 +57,10 @@ rule "Autorizacao - opme"
         $fato : ContaFato(tipoGuia == "OPME")
         $a    : Autorizacao(necessitaAutorizacao == false)
     then
-        $a.setNecessitaAutorizacao(true);
-        $a.setTipoAutorizacao("Autorização para OPME");
-        update($a);
+        modify($a){
+            setNecessitaAutorizacao(true),
+            setTipoAutorizacao("Autorização para OPME")
+        };
 end
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -68,15 +73,19 @@ rule "Glosa - parcial"
         $fato : ContaFato(possuiGlosa == true, valorGuia != null)
         $g    : Glosa(statusGlosa == "SEM_GLOSA")
     then
-        $g.setStatusGlosa("GLOSADO");
-        $g.setPermiteRecurso(true);
-        java.math.BigDecimal original = $fato.getValorGuia();
-        java.math.BigDecimal desconto = original.multiply(new java.math.BigDecimal("0.50"));
-        $g.setValorLiberado(original.subtract(desconto));
-        $g.setTipoGlosa($fato.getTipoGlosa() != null ? $fato.getTipoGlosa() : "GLOSA_PARCIAL");
-        $g.setValorAprovado(original.subtract(desconto));
-        update($g);
-end
+            // Abordagem purista do Java, mas isolada dentro do bloco then
+            java.math.BigDecimal desconto = $fato.getValorGuia().multiply(new java.math.BigDecimal("0.50"));
+            java.math.BigDecimal valorFinal = $fato.getValorGuia().subtract(desconto);
+            String tipo = $fato.getTipoGlosa() != null ? $fato.getTipoGlosa() : "GLOSA_PARCIAL";
+
+            modify($g) {
+                setStatusGlosa("GLOSADO"),
+                setPermiteRecurso(true),
+                setValorLiberado(valorFinal),
+                setTipoGlosa(tipo),
+                setValorAprovado(valorFinal)
+            };
+    end
 
 // Regra: sem glosa — valor liberado é o valor integral da guia
 rule "Glosa - sem glosa"
@@ -84,7 +93,22 @@ rule "Glosa - sem glosa"
         $fato : ContaFato(possuiGlosa == false, valorGuia != null)
         $g    : Glosa(statusGlosa == "SEM_GLOSA")
     then
-        $g.setValorLiberado($fato.getValorGuia());
-        $g.setValorAprovado($fato.getValorGuia());
-        update($g);
+        modify($g){
+            setValorLiberado($fato.getValorGuia()),
+            setValorAprovado($fato.getValorGuia())
+        };
+end
+
+
+rule "Operadora unimed"
+    when
+        $p    : Procedimento(operadora == "unimed", tipo == "CIRURGIA")
+    then
+        java.math.BigDecimal desconto = $p.getValorBase().multiply(new java.math.BigDecimal("0.50"));
+        modify($p){
+            setValorBase(desconto)
+        }
+        // Exemplo de regra específica para a operadora Unimed e um procedimento específico
+        // Poderia incluir lógica adicional, como aplicar um desconto ou marcar o procedimento para revisão
+        System.out.println("Procedimento 12345 da Unimed identificado. Aplicar regras específicas.");
 end
