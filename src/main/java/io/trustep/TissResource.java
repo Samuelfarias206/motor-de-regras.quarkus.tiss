@@ -1,6 +1,7 @@
 package io.trustep;
 
 import io.netty.handler.codec.http.multipart.FileUpload;
+import io.trustep.dto.sadt.GuiaSpSadtDTO;
 import io.trustep.input.AnexosInput;
 import io.trustep.input.ContaRequest;
 import io.trustep.input.ProtocoloRequest;
@@ -13,6 +14,7 @@ import io.trustep.response.FinanceiroResponse;
 import io.trustep.response.PagamentoResponse;
 import io.trustep.response.ProtocoloResponse;
 import io.trustep.services.TissDecisionService;
+import io.trustep.services.TissLoteService;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
@@ -22,6 +24,7 @@ import jakarta.ws.rs.core.MediaType;
 import org.jboss.resteasy.reactive.RestForm;
 
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -49,6 +52,9 @@ public class TissResource {
 
     @Inject
     TissDecisionService service;
+
+    @Inject
+    TissLoteService loteService;
 
     /**
      * Etapa 1 – Receber Guia (spec §1).
@@ -78,6 +84,12 @@ public class TissResource {
     @Path("/validar-documentacao")
     public DocumentacaoResponse validarDocumentacao(ProtocoloRequest request) {
         return service.validarDocumentacao(request.getNumeroProtocolo());
+    }
+
+    @POST
+    @Path("/lote")
+    public String processarLote(List<GuiaSpSadtDTO> guiaSpSadtDTO) {
+        return this.loteService.gerarLoteXml(guiaSpSadtDTO);
     }
 
     /**
@@ -120,12 +132,12 @@ public class TissResource {
         return service.pagamento(request.getNumeroProtocolo());
     }
 
-    @POST
-    @Path("/enviarcsv")
-    @Consumes(MediaType.MULTIPART_FORM_DATA)
-    public String enviarCSV(@RestForm("csv") InputStream csv,
-                            @RestForm("files") List<FileUpload> files) {
-        return service.processarCSV(csv, files);
-    }
+//    @POST
+//    @Path("/enviarcsv")
+//    @Consumes(MediaType.MULTIPART_FORM_DATA)
+//    public String enviarCSV(@RestForm("csv") InputStream csv,
+//                            @RestForm("files") List<FileUpload> files) {
+//        return service.processarCSV(csv, files);
+//    }
 
 }

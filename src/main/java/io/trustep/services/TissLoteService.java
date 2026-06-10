@@ -3,6 +3,7 @@ package io.trustep.services;
 import io.trustep.drools.models.Procedimento;
 import io.trustep.dto.sadt.DadosSolicitacaoProcedimentoDTO;
 import io.trustep.dto.sadt.GuiaSpSadtDTO;
+import io.trustep.utils.DroolsRulesProcessor;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.RequiredArgsConstructor;
 import org.kie.api.KieBase;
@@ -11,6 +12,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -21,7 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class TissLoteService {
 
 
-    private final KieBase kieBase;
+    private final DroolsRulesProcessor rulesProcessor;
 
     private static final String CNPJ_PRESTADOR  = "12345678000199";
     private static final String NOME_PRESTADOR  = "COOPERATIVA ANESTESIA LTDA";
@@ -122,7 +124,8 @@ public class TissLoteService {
             proc.setValorBase(item.valorUnitario.multiply(BigDecimal.valueOf(item.quantidade)));
 
             // Drools aplica as regras do .drl e preenche valorTotal
-            droolsService.aplicarRegras(proc);
+            rulesProcessor.processarRegras(Collections.singletonList(proc));
+//            droolsService.aplicarRegras(proc);
 
             // Devolve o valor calculado para o item — será usado no XML
             item.valorTotal = Optional.ofNullable(proc.getValorApurado())
