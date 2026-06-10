@@ -1,10 +1,12 @@
 package io.trustep.dto.sadt;
 
+
 import java.util.List;
 
 public class GuiaSpSadtDTO {
 
     // === CABEÇALHO DA GUIA ===
+
     public String registroANSOperadora;     // registro ANS da operadora — obrigatório
     public String numeroGuiaPrestador;      // numeração própria do prestador — obrigatório
     public String numeroGuiaPrincipal;      // número da guia de autorização da operadora — obrigatório quando autorizado

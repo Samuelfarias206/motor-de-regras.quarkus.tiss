@@ -1,6 +1,7 @@
 package io.trustep;
 
 import io.netty.handler.codec.http.multipart.FileUpload;
+import io.trustep.dto.sadt.GuiaRequestXML;
 import io.trustep.dto.sadt.GuiaSpSadtDTO;
 import io.trustep.input.AnexosInput;
 import io.trustep.input.ContaRequest;
@@ -90,6 +91,13 @@ public class TissResource {
     @Path("/lote")
     public String processarLote(List<GuiaSpSadtDTO> guiaSpSadtDTO) {
         return this.loteService.gerarLoteXml(guiaSpSadtDTO);
+    }
+
+    @POST
+    @Path("/lote-xml")
+    @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
+    public String processarLoteXml(String request) {
+        return this.loteService.gerarLoteXml(request);
     }
 
     /**

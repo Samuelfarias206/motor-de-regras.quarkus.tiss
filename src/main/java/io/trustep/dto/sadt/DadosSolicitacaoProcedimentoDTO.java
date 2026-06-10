@@ -1,5 +1,6 @@
 package io.trustep.dto.sadt;
 
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import lombok.Getter;
 import lombok.Setter;
 

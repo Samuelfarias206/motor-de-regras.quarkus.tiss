@@ -1,5 +1,7 @@
 package io.trustep.dto.sadt;
 
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
+
 public class DadosBeneficiarioDTO {
     public String numeroCarteira;          // obrigatório — com dígito verificador (TISS 3.05)
     public String atendimentoRN;           // RN = recém-nascido, "S" ou "N" — obrigatório

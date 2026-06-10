@@ -299,3 +299,270 @@ Content-Type: application/json
     "tipoProcedimento": "TERAPIA"
   }
 ]
+
+###
+
+POST http://localhost:8080/tiss/lote-xml
+Content-Type: text/xml
+
+<guias>
+    <guia>
+        <registroANSOperadora>ANS123456</registroANSOperadora>
+        <numeroGuiaPrestador>G-0001</numeroGuiaPrestador>
+        <numeroGuiaPrincipal/>
+        <dataAutorizacao>2026-05-10</dataAutorizacao>
+        <senhaAutorizacao>SENHA123</senhaAutorizacao>
+        <dataValidadeSenha>2026-06-10</dataValidadeSenha>
+
+        <beneficiario>
+            <numeroCarteira>000123456-7</numeroCarteira>
+            <atendimentoRN>N</atendimentoRN>
+            <nomeBeneficiario>João da Silva</nomeBeneficiario>
+            <numeroCNS>123456789012345</numeroCNS>
+            <dataValidadeCarteira>2027-04-01</dataValidadeCarteira>
+            <nomePlano>Plano A</nomePlano>
+        </beneficiario>
+
+        <solicitante>
+            <codigoOperadoraSolicitante>OP123</codigoOperadoraSolicitante>
+            <nomeSolicitante>Dr. Ricardo Almeida</nomeSolicitante>
+            <conselhoProfissional>CRM</conselhoProfissional>
+            <numeroConselho>98765</numeroConselho>
+            <ufConselho>SP</ufConselho>
+            <cbos>2251</cbos>
+        </solicitante>
+
+        <caraterAtendimento>01</caraterAtendimento>
+        <tipoAtendimento>05</tipoAtendimento>
+        <indicacaoAcidente>0</indicacaoAcidente>
+
+        <tipoConsulta/>
+        <motivoEncerramento>Atendimento finalizado</motivoEncerramento>
+
+        <procedimentos>
+            <procedimento>
+                <dataRealizacao>2026-05-20</dataRealizacao>
+                <horaInicial>08:00</horaInicial>
+                <horaFinal>10:30</horaFinal>
+                <codigoTabela>22</codigoTabela>
+                <codigoProcedimento>12345</codigoProcedimento>
+                <descricaoProcedimento>Cirurgia ortopédica</descricaoProcedimento>
+                <quantidade>1</quantidade>
+                <valorUnitario>15000.00</valorUnitario>
+                <valorTotal>15000.00</valorTotal>
+                <viaAcesso>01</viaAcesso>
+                <tecnicaUtilizada>A1</tecnicaUtilizada>
+                <reducaoAcrescimo>00</reducaoAcrescimo>
+            </procedimento>
+        </procedimentos>
+
+        <executante>
+            <codigoOperadoraExecutante>EX001</codigoOperadoraExecutante>
+            <cpfExecutante>12345678901</cpfExecutante>
+            <nomeExecutante>Dr. Carlos Pereira</nomeExecutante>
+            <conselhoProfissional>CRM</conselhoProfissional>
+            <numeroConselho>54321</numeroConselho>
+            <ufConselho>SP</ufConselho>
+            <cbos>2251</cbos>
+            <grauParticipacao>01</grauParticipacao>
+        </executante>
+
+        <operadora>unimed</operadora>
+        <tipoProcedimento>CIRURGIA</tipoProcedimento>
+    </guia>
+
+    <guia>
+        <registroANSOperadora>ANS654321</registroANSOperadora>
+        <numeroGuiaPrestador>G-0002</numeroGuiaPrestador>
+        <numeroGuiaPrincipal>GP-100</numeroGuiaPrincipal>
+        <dataAutorizacao>2026-04-15</dataAutorizacao>
+        <senhaAutorizacao/>
+        <dataValidadeSenha/>
+
+        <beneficiario>
+            <numeroCarteira>000765432-1</numeroCarteira>
+            <atendimentoRN>S</atendimentoRN>
+            <nomeBeneficiario>Mariana Souza</nomeBeneficiario>
+            <numeroCNS>987654321098765</numeroCNS>
+            <dataValidadeCarteira>2028-12-31</dataValidadeCarteira>
+            <nomePlano>Plano Família</nomePlano>
+        </beneficiario>
+
+        <solicitante>
+            <codigoOperadoraSolicitante>OP200</codigoOperadoraSolicitante>
+            <nomeSolicitante>Dra. Ana Beatriz</nomeSolicitante>
+            <conselhoProfissional>CRM</conselhoProfissional>
+            <numeroConselho>11223</numeroConselho>
+            <ufConselho>RJ</ufConselho>
+            <cbos>2252</cbos>
+        </solicitante>
+
+        <caraterAtendimento>02</caraterAtendimento>
+        <tipoAtendimento>01</tipoAtendimento>
+        <indicacaoAcidente>0</indicacaoAcidente>
+
+        <tipoConsulta>Consulta especializada</tipoConsulta>
+        <motivoEncerramento>Encerrado pela operadora</motivoEncerramento>
+
+        <procedimentos>
+            <procedimento>
+                <dataRealizacao>2026-04-20</dataRealizacao>
+                <horaInicial>14:00</horaInicial>
+                <horaFinal>14:30</horaFinal>
+                <codigoTabela>22</codigoTabela>
+                <codigoProcedimento>A100</codigoProcedimento>
+                <descricaoProcedimento>Consulta cardiologia</descricaoProcedimento>
+                <quantidade>1</quantidade>
+                <valorUnitario>200.00</valorUnitario>
+                <valorTotal>200.00</valorTotal>
+                <viaAcesso/>
+                <tecnicaUtilizada/>
+                <reducaoAcrescimo>00</reducaoAcrescimo>
+            </procedimento>
+        </procedimentos>
+
+        <executante>
+            <codigoOperadoraExecutante>EX200</codigoOperadoraExecutante>
+            <cpfExecutante>10987654321</cpfExecutante>
+            <nomeExecutante>Dra. Laura Mendes</nomeExecutante>
+            <conselhoProfissional>CRM</conselhoProfissional>
+            <numeroConselho>33445</numeroConselho>
+            <ufConselho>RJ</ufConselho>
+            <cbos>2252</cbos>
+            <grauParticipacao>13</grauParticipacao>
+        </executante>
+
+        <operadora>amil</operadora>
+        <tipoProcedimento>TERAPIA</tipoProcedimento>
+    </guia>
+
+    <guia>
+        <registroANSOperadora>ANS998877</registroANSOperadora>
+        <numeroGuiaPrestador>G-0003</numeroGuiaPrestador>
+        <numeroGuiaPrincipal/>
+        <dataAutorizacao>2026-06-01</dataAutorizacao>
+        <senhaAutorizacao>XYZ999</senhaAutorizacao>
+        <dataValidadeSenha>2026-06-30</dataValidadeSenha>
+
+        <beneficiario>
+            <numeroCarteira>001234567-0</numeroCarteira>
+            <atendimentoRN>N</atendimentoRN>
+            <nomeBeneficiario>Carlos Eduardo</nomeBeneficiario>
+            <numeroCNS/>
+            <dataValidadeCarteira/>
+            <nomePlano>Premium</nomePlano>
+        </beneficiario>
+
+        <solicitante>
+            <codigoOperadoraSolicitante>OP300</codigoOperadoraSolicitante>
+            <nomeSolicitante>Dr. Felipe Costa</nomeSolicitante>
+            <conselhoProfissional>CRM</conselhoProfissional>
+            <numeroConselho>55667</numeroConselho>
+            <ufConselho>MG</ufConselho>
+            <cbos>2253</cbos>
+        </solicitante>
+
+        <caraterAtendimento>01</caraterAtendimento>
+        <tipoAtendimento>05</tipoAtendimento>
+        <indicacaoAcidente>0</indicacaoAcidente>
+
+        <tipoConsulta/>
+        <motivoEncerramento>Alta hospitalar</motivoEncerramento>
+
+        <procedimentos>
+            <procedimento>
+                <dataRealizacao>2026-06-05</dataRealizacao>
+                <horaInicial>07:30</horaInicial>
+                <horaFinal>09:00</horaFinal>
+                <codigoTabela>98</codigoTabela>
+                <codigoProcedimento>12345</codigoProcedimento>
+                <descricaoProcedimento>Cirurgia geral</descricaoProcedimento>
+                <quantidade>1</quantidade>
+                <valorUnitario>12000.00</valorUnitario>
+                <valorTotal>12000.00</valorTotal>
+                <viaAcesso>02</viaAcesso>
+                <tecnicaUtilizada>B2</tecnicaUtilizada>
+                <reducaoAcrescimo>00</reducaoAcrescimo>
+            </procedimento>
+        </procedimentos>
+
+        <executante>
+            <codigoOperadoraExecutante>EX300</codigoOperadoraExecutante>
+            <cpfExecutante>22233344455</cpfExecutante>
+            <nomeExecutante>Dr. Marcos Vinicius</nomeExecutante>
+            <conselhoProfissional>CRM</conselhoProfissional>
+            <numeroConselho>77889</numeroConselho>
+            <ufConselho>MG</ufConselho>
+            <cbos>2253</cbos>
+            <grauParticipacao>01</grauParticipacao>
+        </executante>
+
+        <operadora>unimed</operadora>
+        <tipoProcedimento>CIRURGIA</tipoProcedimento>
+    </guia>
+
+    <guia>
+        <registroANSOperadora>ANS445566</registroANSOperadora>
+        <numeroGuiaPrestador>G-0004</numeroGuiaPrestador>
+        <numeroGuiaPrincipal>GP-200</numeroGuiaPrincipal>
+        <dataAutorizacao/>
+        <senhaAutorizacao/>
+        <dataValidadeSenha/>
+
+        <beneficiario>
+            <numeroCarteira>009988776-5</numeroCarteira>
+            <atendimentoRN>N</atendimentoRN>
+            <nomeBeneficiario>Fernanda Lima</nomeBeneficiario>
+            <numeroCNS>564738291012345</numeroCNS>
+            <dataValidadeCarteira>2029-08-15</dataValidadeCarteira>
+            <nomePlano>Essencial</nomePlano>
+        </beneficiario>
+
+        <solicitante>
+            <codigoOperadoraSolicitante>OP400</codigoOperadoraSolicitante>
+            <nomeSolicitante>Dra. Simone Rocha</nomeSolicitante>
+            <conselhoProfissional>CRO</conselhoProfissional>
+            <numeroConselho>99887</numeroConselho>
+            <ufConselho>BA</ufConselho>
+            <cbos>2254</cbos>
+        </solicitante>
+
+        <caraterAtendimento>01</caraterAtendimento>
+        <tipoAtendimento>03</tipoAtendimento>
+        <indicacaoAcidente>9</indicacaoAcidente>
+
+        <tipoConsulta/>
+        <motivoEncerramento>Paciente liberado</motivoEncerramento>
+
+        <procedimentos>
+            <procedimento>
+                <dataRealizacao>2026-03-10</dataRealizacao>
+                <horaInicial>10:00</horaInicial>
+                <horaFinal>11:30</horaFinal>
+                <codigoTabela>00</codigoTabela>
+                <codigoProcedimento>T100</codigoProcedimento>
+                <descricaoProcedimento>Sessão de fisioterapia</descricaoProcedimento>
+                <quantidade>5</quantidade>
+                <valorUnitario>80.00</valorUnitario>
+                <valorTotal>400.00</valorTotal>
+                <viaAcesso/>
+                <tecnicaUtilizada/>
+                <reducaoAcrescimo>70</reducaoAcrescimo>
+            </procedimento>
+        </procedimentos>
+
+        <executante>
+            <codigoOperadoraExecutante>EX400</codigoOperadoraExecutante>
+            <cpfExecutante>33344455566</cpfExecutante>
+            <nomeExecutante>Fisioterapeuta Paula</nomeExecutante>
+            <conselhoProfissional>CREFITO</conselhoProfissional>
+            <numeroConselho>44556</numeroConselho>
+            <ufConselho>BA</ufConselho>
+            <cbos>2711</cbos>
+            <grauParticipacao>13</grauParticipacao>
+        </executante>
+
+        <operadora>bradesco</operadora>
+        <tipoProcedimento>TERAPIA</tipoProcedimento>
+    </guia>
+</guias>

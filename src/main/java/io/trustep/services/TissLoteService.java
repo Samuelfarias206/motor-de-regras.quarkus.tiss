@@ -1,13 +1,18 @@
 package io.trustep.services;
 
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import io.trustep.drools.models.Procedimento;
 import io.trustep.dto.sadt.DadosSolicitacaoProcedimentoDTO;
+import io.trustep.dto.sadt.GuiaRequestXML;
 import io.trustep.dto.sadt.GuiaSpSadtDTO;
 import io.trustep.utils.DroolsRulesProcessor;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.Unmarshaller;
 import lombok.RequiredArgsConstructor;
 import org.kie.api.KieBase;
 
+import java.io.StringReader;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -103,6 +108,20 @@ public class TissLoteService {
                 valorTotalLote,
                 hash
         );
+    }
+
+    public String gerarLoteXml(String request) {
+        try {
+            JAXBContext context = JAXBContext.newInstance(GuiaRequestXML.class);
+
+            Unmarshaller unmarshaller = context.createUnmarshaller();
+            StringReader reader = new StringReader(request);
+            List<GuiaSpSadtDTO> guias = (List<GuiaSpSadtDTO>) unmarshaller.unmarshal(reader);
+            return gerarLoteXml(guias);
+        } catch (Exception e) {
+            throw new IllegalArgumentException(
+                    "Erro ao gerar lote xml: " + e.getMessage(), e);
+        }
     }
 
     // =========================================================================
