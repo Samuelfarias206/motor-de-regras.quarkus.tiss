@@ -128,9 +128,11 @@ public class TissLoteService {
 //            droolsService.aplicarRegras(proc);
 
             // Devolve o valor calculado para o item — será usado no XML
-            item.valorTotal = Optional.ofNullable(proc.getValorApurado())
-                                .orElse(BigDecimal.ZERO);
-            total = total.add(item.valorTotal);
+            final var valorBaseProcedimento = Optional.ofNullable(proc)
+                    .map(Procedimento::getValorBase)
+                    .orElse(BigDecimal.ZERO);
+            item.setValorTotal(valorBaseProcedimento);
+            total = total.add(item.getValorTotal());
         }
 
         return total;
