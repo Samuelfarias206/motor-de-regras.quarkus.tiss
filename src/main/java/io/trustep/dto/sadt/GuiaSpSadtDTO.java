@@ -1,10 +1,14 @@
 package io.trustep.dto.sadt;
 
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+
 import java.util.List;
 
 public class GuiaSpSadtDTO {
 
     // === CABEÇALHO DA GUIA ===
+
     public String registroANSOperadora;     // registro ANS da operadora — obrigatório
     public String numeroGuiaPrestador;      // numeração própria do prestador — obrigatório
     public String numeroGuiaPrincipal;      // número da guia de autorização da operadora — obrigatório quando autorizado
@@ -26,6 +30,9 @@ public class GuiaSpSadtDTO {
     public String motivoEncerramento;       // obrigatório
 
     // === PROCEDIMENTOS ===
+    // A anotação @JacksonXmlElementWrapper mapeia <procedimentos><procedimento>...</procedimento></procedimentos>
+    @JacksonXmlElementWrapper(localName = "procedimentos")
+    @JacksonXmlProperty(localName = "procedimento")
     public List<DadosSolicitacaoProcedimentoDTO> procedimentos;  // obrigatório — até 100 por guia
 
     // === EXECUTANTE ===

@@ -1,5 +1,6 @@
 package io.trustep.dto.sadt;
 
+
 public class DadosContratadoExecutanteDTO {
     // Quem EXECUTOU — o anestesista da cooperativa
     public String codigoOperadoraExecutante;  // código do prestador na operadora

@@ -1,7 +1,12 @@
 package io.trustep.dto.sadt;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.math.BigDecimal;
 
+@Getter
+@Setter
 public class DadosSolicitacaoProcedimentoDTO {
     public String dataRealizacao;       // formato yyyy-MM-dd — obrigatório
     public String horaInicial;          // formato HH:mm — obrigatório para anestesia

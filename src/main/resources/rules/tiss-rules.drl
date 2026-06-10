@@ -4,6 +4,7 @@ import io.trustep.dto.ContaFato;
 import io.trustep.dto.Elegibilidade;
 import io.trustep.dto.Autorizacao;
 import io.trustep.dto.Glosa;
+import io.trustep.drools.models.Procedimento
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ELEGIBILIDADE (Etapa 4 – spec §4: "Validar Elegibilidade do Beneficiário")
@@ -96,4 +97,18 @@ rule "Glosa - sem glosa"
             setValorLiberado($fato.getValorGuia()),
             setValorAprovado($fato.getValorGuia())
         };
+end
+
+
+rule "Operadora unimed"
+    when
+        $p    : Procedimento(operadora == "unimed", tipo == "CIRURGIA")
+    then
+        java.math.BigDecimal desconto = $p.getValorBase().multiply(new java.math.BigDecimal("0.50"));
+        modify($p){
+            setValorBase(desconto)
+        }
+        // Exemplo de regra específica para a operadora Unimed e um procedimento específico
+        // Poderia incluir lógica adicional, como aplicar um desconto ou marcar o procedimento para revisão
+        System.out.println("Procedimento 12345 da Unimed identificado. Aplicar regras específicas.");
 end

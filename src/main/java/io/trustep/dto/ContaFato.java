@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 /**
  * Fato de entrada para as regras Drools na Etapa 4 – Aprovar Conta.
@@ -22,6 +23,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Builder
 public class ContaFato {
+    private BigInteger numeroGuia;
     private String tipoGuia;
     private BigDecimal valorGuia;
     /** Atendimento coberto por Resolução Normativa (RN) da ANS — confere elegibilidade automática. */
@@ -32,4 +34,5 @@ public class ContaFato {
     private String tipoGlosa;
     /** Confirma se o prestador já possui autorização para o procedimento. */
     private boolean possuiAutorizacao;
+    private String statusProtocolo;
 }

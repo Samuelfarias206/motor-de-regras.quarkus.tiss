@@ -1,27 +1,32 @@
 package io.trustep.services;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import io.trustep.drools.models.Procedimento;
 import io.trustep.dto.sadt.DadosSolicitacaoProcedimentoDTO;
+import io.trustep.dto.sadt.GuiaRequestXML;
 import io.trustep.dto.sadt.GuiaSpSadtDTO;
+import io.trustep.utils.DroolsRulesProcessor;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.RequiredArgsConstructor;
-import org.kie.api.KieBase;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
+
 
 @ApplicationScoped
 @RequiredArgsConstructor
 public class TissLoteService {
 
 
-    private final KieBase kieBase;
+    private final DroolsRulesProcessor rulesProcessor;
 
     private static final String CNPJ_PRESTADOR  = "12345678000199";
     private static final String NOME_PRESTADOR  = "COOPERATIVA ANESTESIA LTDA";
@@ -103,6 +108,19 @@ public class TissLoteService {
         );
     }
 
+    public String gerarLoteXml(String request) {
+        try {
+            XmlMapper xmlMapper = new XmlMapper();
+            xmlMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+            GuiaRequestXML wrapper = xmlMapper.readValue(request, GuiaRequestXML.class);
+            return gerarLoteXml(wrapper.guias);
+        } catch (Exception e) {
+            throw new IllegalArgumentException(
+                    "Erro ao processar XML de entrada: " + e.getMessage(), e);
+        }
+    }
+
     // =========================================================================
     // ETAPA 3a: APLICA DROOLS E CALCULA VALOR TOTAL DA GUIA
     // Itera sobre os procedimentos da guia, aplica as regras de contrato
@@ -122,12 +140,15 @@ public class TissLoteService {
             proc.setValorBase(item.valorUnitario.multiply(BigDecimal.valueOf(item.quantidade)));
 
             // Drools aplica as regras do .drl e preenche valorTotal
-            droolsService.aplicarRegras(proc);
+            rulesProcessor.processarRegras(Collections.singletonList(proc));
+//            droolsService.aplicarRegras(proc);
 
             // Devolve o valor calculado para o item — será usado no XML
-            item.valorTotal = Optional.ofNullable(proc.getValorApurado())
-                                .orElse(BigDecimal.ZERO);
-            total = total.add(item.valorTotal);
+            final var valorBaseProcedimento = Optional.ofNullable(proc)
+                    .map(Procedimento::getValorBase)
+                    .orElse(BigDecimal.ZERO);
+            item.setValorTotal(valorBaseProcedimento);
+            total = total.add(item.getValorTotal());
         }
 
         return total;
