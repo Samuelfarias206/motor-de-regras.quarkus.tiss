@@ -1,5 +1,6 @@
 package io.trustep;
 
+import io.netty.handler.codec.http.multipart.FileUpload;
 import io.trustep.input.AnexosInput;
 import io.trustep.input.ContaRequest;
 import io.trustep.input.ProtocoloRequest;
@@ -18,8 +19,10 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
+import org.jboss.resteasy.reactive.RestForm;
 
 import java.io.InputStream;
+import java.util.List;
 
 /**
  * API REST do fluxo de processamento de guias TISS.
@@ -119,9 +122,10 @@ public class TissResource {
 
     @POST
     @Path("/enviarcsv")
-    @Consumes("text/csv")
-    public String enviarCSV(InputStream csv) {
-        return service.processarCSV(csv);
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    public String enviarCSV(@RestForm("csv") InputStream csv,
+                            @RestForm("files") List<FileUpload> files) {
+        return service.processarCSV(csv, files);
     }
 
 }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
+import io.netty.handler.codec.http.multipart.FileUpload;
 import io.trustep.dto.Autorizacao;
 import io.trustep.dto.ContaFato;
 import io.trustep.dto.Elegibilidade;
@@ -363,42 +364,28 @@ public class TissDecisionService {
                 .build();
     }
 
-    public String processarCSV(InputStream csv) {
-//        final var reader = new BufferedReader(new InputStreamReader(csv));
-//        String[] cabecalho;
-//        String[] linha;
-//        final var listaMapaGuias = new ArrayList<Map<String, String>>();
+    public String processarCSV(InputStream csv, List<FileUpload> files) {
         try {
-//            final var resp = mapper.readValue(csv, List.class);
-////            final var listaGuias = Collections.singletonList(reader.readLine());
-//            cabecalho = reader.readLine().split(",");
-//            final var mapaGuia = new HashMap<String, String>();
-//            reader.lines().forEach(linha -> {
-//                final var valoresLinha = linha.split(",");
-//                for (int i = 0; i < cabecalho.length; i++) {
-//                    mapaGuia.put(cabecalho[i], valoresLinha[i]);
-//                }
-//                listaMapaGuias.add(mapaGuia);
-//            });
             CsvMapper mapper = new CsvMapper();
 
             CsvSchema schema = CsvSchema.emptySchema()
                     .withHeader();
 
-            List<ContaFato> guias = mapper
-                    .readerFor(ContaFato.class)
+            List<AnexosInput> anexos = mapper
+                    .readerFor(AnexosInput.class)
                     .with(schema)
-                    .<ContaFato>readValues(csv)
+                    .<AnexosInput>readValues(csv)
                     .readAll();
 
 //            final var contasFatos = listaMapaGuias.stream().map(TransformerUtil::transformerToContaFato).toList();
-            droolsRulesProcessor.processarRegras(Collections.singletonList(guias));
-            guias.stream().forEach(contaFato -> {
+            droolsRulesProcessor.processarRegras(Collections.singletonList(anexos));
+            anexos.stream().forEach(anexo -> {
                 /**
                  * Validaçao de anexos para cada guia, verificando
                  * quais documentos são necessários para
                  * o tipo de guia e comparando com os anexos enviados
                  * documentos*/
+
             });
             //validando anexos
 
