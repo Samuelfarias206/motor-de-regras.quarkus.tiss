@@ -16,7 +16,7 @@ public class GuiaSpSadtDTO {
     public DadosBeneficiarioDTO beneficiario;    // obrigatório
 
     // === DADOS DO SOLICITANTE ===
-    public DadosSolicitacaoProcedimentoDTO solicitante;      // obrigatório
+    public DadosSolicitanteDTO solicitante;      // obrigatório
 
     // === DADOS DA SOLICITAÇÃO ===
     public String caraterAtendimento;       // "01"=eletivo, "02"=urgência/emergência — obrigatório
