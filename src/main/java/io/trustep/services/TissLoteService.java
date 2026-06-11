@@ -111,7 +111,7 @@ public class TissLoteService {
     public String gerarLoteXml(String request) {
         try {
             XmlMapper xmlMapper = new XmlMapper();
-            xmlMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+//            xmlMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
             GuiaRequestXML wrapper = xmlMapper.readValue(request, GuiaRequestXML.class);
             return gerarLoteXml(wrapper.guias);
