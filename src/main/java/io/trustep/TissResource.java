@@ -1,12 +1,14 @@
 package io.trustep;
 
-import io.netty.handler.codec.http.multipart.FileUpload;
-import io.trustep.dto.sadt.GuiaRequestXML;
 import io.trustep.dto.sadt.GuiaSpSadtDTO;
+import io.trustep.entities.GuiaEntity;
+import io.trustep.entities.LoteEntity;
 import io.trustep.input.AnexosInput;
 import io.trustep.input.ContaRequest;
 import io.trustep.input.ProtocoloRequest;
 import io.trustep.input.TissInput;
+import io.trustep.repositories.GuiaRepository;
+import io.trustep.repositories.LoteRepository;
 import io.trustep.response.AnexosResponse;
 import io.trustep.response.ContaResponse;
 import io.trustep.response.DemonstrativoResponse;
@@ -18,14 +20,13 @@ import io.trustep.services.TissDecisionService;
 import io.trustep.services.TissLoteService;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
-import org.jboss.resteasy.reactive.RestForm;
 
-import java.io.InputStream;
-import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -44,6 +45,11 @@ import java.util.List;
  * POST /tiss/demonstrativo       → Etapa 5 – Gerar Demonstrativo
  * POST /tiss/financeiro          → Etapa 6 – Enviar para Financeiro
  * POST /tiss/pagamento           → Etapa 7 – Pagamento
+ *
+ * GET  /tiss/lotes               → Lista todos os lotes salvos
+ * GET  /tiss/lotes/{numero}      → Busca lote por número
+ * GET  /tiss/guias               → Lista todas as guias salvas
+ * GET  /tiss/guias/{numero}      → Busca guia por número do prestador
  * </pre>
  */
 @Path("/tiss")
@@ -56,6 +62,12 @@ public class TissResource {
 
     @Inject
     TissLoteService loteService;
+
+    @Inject
+    LoteRepository loteRepository;
+
+    @Inject
+    GuiaRepository guiaRepository;
 
     /**
      * Etapa 1 – Receber Guia (spec §1).
@@ -138,6 +150,49 @@ public class TissResource {
     @Path("/pagamento")
     public PagamentoResponse pagamento(ProtocoloRequest request) {
         return service.pagamento(request.getNumeroProtocolo());
+    }
+
+    // =========================================================================
+    // CONSULTAS — endpoints GET para visualizar dados persistidos no H2
+    // =========================================================================
+
+    /** Lista todos os lotes salvos no banco. */
+    @GET
+    @Path("/lotes")
+    public List<LoteEntity> listarLotes() {
+        return loteRepository.listAll();
+    }
+
+    /** Busca um lote específico pelo número. */
+    @GET
+    @Path("/lotes/{numeroLote}")
+    public LoteEntity buscarLote(@PathParam("numeroLote") String numeroLote) {
+        return loteRepository.findByNumeroLote(numeroLote)
+                .orElse(null);
+    }
+
+    /** Lista todas as guias salvas no banco. */
+    @GET
+    @Path("/guias")
+    public List<GuiaEntity> listarGuias() {
+        return guiaRepository.listAll();
+    }
+
+    /** Busca uma guia pelo número do prestador. */
+    @GET
+    @Path("/guias/{numeroGuiaPrestador}")
+    public GuiaEntity buscarGuia(@PathParam("numeroGuiaPrestador") String numeroGuiaPrestador) {
+        return guiaRepository.findByNumeroGuiaPrestador(numeroGuiaPrestador)
+                .orElse(null);
+    }
+
+    /** Lista todas as guias de um lote específico. */
+    @GET
+    @Path("/lotes/{numeroLote}/guias")
+    public List<GuiaEntity> listarGuiasDoLote(@PathParam("numeroLote") String numeroLote) {
+        return loteRepository.findByNumeroLote(numeroLote)
+                .map(lote -> guiaRepository.findByLoteId(lote.getId()))
+                .orElse(List.of());
     }
 
 //    @POST

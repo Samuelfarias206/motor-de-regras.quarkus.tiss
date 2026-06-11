@@ -172,6 +172,18 @@
         <!--            <scope>import</scope>-->
         <!--        </dependency>-->
 
+        <!-- Hibernate ORM com Panache — Repository pattern para acesso ao banco -->
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-hibernate-orm-panache</artifactId>
+        </dependency>
+
+        <!-- Driver JDBC H2 — banco embarcado em memória, sem necessidade de Docker -->
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-jdbc-h2</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-junit</artifactId>

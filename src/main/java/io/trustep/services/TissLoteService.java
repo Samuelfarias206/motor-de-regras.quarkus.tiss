@@ -6,8 +6,13 @@ import io.trustep.drools.models.Procedimento;
 import io.trustep.dto.sadt.DadosSolicitacaoProcedimentoDTO;
 import io.trustep.dto.sadt.GuiaRequestXML;
 import io.trustep.dto.sadt.GuiaSpSadtDTO;
+import io.trustep.entities.GuiaEntity;
+import io.trustep.entities.LoteEntity;
+import io.trustep.repositories.GuiaRepository;
+import io.trustep.repositories.LoteRepository;
 import io.trustep.utils.DroolsRulesProcessor;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 import java.math.BigDecimal;
@@ -27,6 +32,8 @@ public class TissLoteService {
 
 
     private final DroolsRulesProcessor rulesProcessor;
+    private final LoteRepository loteRepository;
+    private final GuiaRepository guiaRepository;
 
     private static final String CNPJ_PRESTADOR  = "12345678000199";
     private static final String NOME_PRESTADOR  = "COOPERATIVA ANESTESIA LTDA";
@@ -38,6 +45,7 @@ public class TissLoteService {
     // Recebe a lista de guias, valida o limite, e orquestra a geração do XML.
     // Retorna o XML como String pronto para ser salvo ou devolvido ao cliente.
     // =========================================================================
+    @Transactional
     public String gerarLoteXml(List<GuiaSpSadtDTO> guias) {
 
         // --- ETAPA 1: Validação do limite de guias por lote ---
@@ -86,6 +94,10 @@ public class TissLoteService {
             // Gera o XML da guia e acumula no StringBuilder
             blocoGuias.append(gerarBlocoGuia(guia, sequencia.getAndIncrement(), valorTotalGuia));
         }
+
+        // --- PERSISTÊNCIA: salva o lote e as guias no banco ---
+        persistirLoteEGuias(numeroLote, guias, valorTotalLote,
+                guias.get(0).registroANSOperadora, calcularHashEpilogo(blocoGuias.toString()));
 
         // --- ETAPA 4: Cálculo do hash do epilogo ---
         // O padrão TISS exige um hash MD5 no epilogo que representa
@@ -438,5 +450,53 @@ public class TissLoteService {
     // Null-safe: evita "null" literal no XML quando campo opcional não foi informado
     private String nvl(String valor, String fallback) {
         return valor != null && !valor.isBlank() ? valor : fallback;
+    }
+
+    // =========================================================================
+    // PERSISTÊNCIA: salva o lote e as guias processadas no banco de dados.
+    // Chamado após a aplicação das regras Drools e cálculo dos valores.
+    // =========================================================================
+    private void persistirLoteEGuias(
+            String numeroLote,
+            List<GuiaSpSadtDTO> guias,
+            BigDecimal valorTotalLote,
+            String registroANSOperadora,
+            String hashEpilogo) {
+
+        // 1. Cria e persiste o lote
+        LoteEntity loteEntity = LoteEntity.builder()
+                .numeroLote(numeroLote)
+                .registroANSOperadora(registroANSOperadora)
+                .valorTotalLote(valorTotalLote)
+                .hashEpilogo(hashEpilogo)
+                .build();
+        loteRepository.salvar(loteEntity);
+
+        // 2. Cria e persiste cada guia vinculada ao lote
+        int seq = 1;
+        for (GuiaSpSadtDTO guia : guias) {
+            BigDecimal valorGuia = calcularValorGuia(guia);
+
+            GuiaEntity guiaEntity = GuiaEntity.builder()
+                    .lote(loteEntity)
+                    .numeroGuiaPrestador(guia.numeroGuiaPrestador)
+                    .numeroGuiaPrincipal(guia.numeroGuiaPrincipal)
+                    .registroANSOperadora(guia.registroANSOperadora)
+                    .dataAutorizacao(guia.dataAutorizacao)
+                    .senhaAutorizacao(guia.senhaAutorizacao)
+                    .numeroCarteiraBeneficiario(guia.beneficiario != null ? guia.beneficiario.numeroCarteira : null)
+                    .nomeBeneficiario(guia.beneficiario != null ? guia.beneficiario.nomeBeneficiario : null)
+                    .cpfExecutante(guia.executante != null ? guia.executante.cpfExecutante : null)
+                    .nomeExecutante(guia.executante != null ? guia.executante.nomeExecutante : null)
+                    .grauParticipacao(guia.executante != null ? guia.executante.grauParticipacao : null)
+                    .caraterAtendimento(guia.caraterAtendimento)
+                    .tipoAtendimento(guia.tipoAtendimento)
+                    .operadora(guia.operadora)
+                    .tipoProcedimento(guia.tipoProcedimento)
+                    .valorTotalGuia(valorGuia)
+                    .sequenciaNoLote(seq++)
+                    .build();
+            guiaRepository.salvar(guiaEntity);
+        }
     }
 }
