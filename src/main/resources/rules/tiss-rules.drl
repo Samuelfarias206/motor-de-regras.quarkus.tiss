@@ -19,15 +19,27 @@ rule "Aplicar Regra Dinamica da Operadora"
             $op : operadora != null, 
             $cpf : cpfExecutante, 
             $tipo : tipo, 
-            valorApurado == null
+            $dataExecucao : dataExecucao,
+            $idade : idadePaciente,
+            $carater : caraterAtendimento,
+            $grau : grauParticipacao,
+            $regrasApp : regrasAplicadas // Extrai a lista de regras aplicadas
         )
         
-        // 2. O Drools busca na memória uma regra que "dê match" com esse procedimento!
-        // Ignora nulls (ex: se cpfExecutante for null na regra, vale pra todos os médicos)
+        // 2. O Drools busca na memória uma regra que "dê match" e que AINDA NÃO FOI APLICADA
         $regra : RegraOperadoraEntity(
+            !$regrasApp.contains(descricaoLog), // Evita loop infinito e permite cascata!
             operadora.equalsIgnoreCase($op),
             (cpfExecutante == null || cpfExecutante == $cpf),
-            (tipoProcedimento == null || tipoProcedimento.equalsIgnoreCase($tipo))
+            (tipoProcedimento == null || tipoProcedimento.equalsIgnoreCase($tipo)),
+            
+            // CONDIÇÕES DE TEMPO E RISCO:
+            (dataInicio == null || ($dataExecucao != null && dataInicio <= $dataExecucao)),
+            (dataFim == null || ($dataExecucao != null && dataFim >= $dataExecucao)),
+            (idadeMinima == null || ($idade != null && idadeMinima <= $idade)),
+            (idadeMaxima == null || ($idade != null && idadeMaxima >= $idade)),
+            (caraterAtendimento == null || caraterAtendimento == $carater),
+            (grauParticipacao == null || grauParticipacao == $grau)
         )
     then
         // O Drools decidiu que essa regra se aplica! Manda o Java aplicar a matemática.

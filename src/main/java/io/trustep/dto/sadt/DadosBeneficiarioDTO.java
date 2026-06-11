@@ -7,4 +7,5 @@ public class DadosBeneficiarioDTO {
     public String numeroCNS;               // Cartão Nacional de Saúde — opcional
     public String dataValidadeCarteira;    // formato yyyy-MM-dd — opcional
     public String nomePlano;               // opcional
+    public String dataNascimento;          // formato yyyy-MM-dd — opcional/necessário para regras de idade
 }

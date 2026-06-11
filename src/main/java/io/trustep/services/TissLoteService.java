@@ -23,6 +23,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -158,6 +160,27 @@ public class TissLoteService {
             if (guia.executante != null) {
                 proc.setCpfExecutante(guia.executante.cpfExecutante);
                 proc.setNomeExecutante(guia.executante.nomeExecutante);
+                proc.setGrauParticipacao(guia.executante.grauParticipacao);
+            }
+
+            // Metadados Complexos (Anestesiologia / TUSS)
+            proc.setCaraterAtendimento(guia.caraterAtendimento);
+            
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            try {
+                if (item.dataRealizacao != null && !item.dataRealizacao.isEmpty()) {
+                    LocalDate dataExecucao = LocalDate.parse(item.dataRealizacao, formatter);
+                    proc.setDataExecucao(dataExecucao);
+                }
+                
+                if (guia.beneficiario != null && guia.beneficiario.dataNascimento != null) {
+                    LocalDate dataNasc = LocalDate.parse(guia.beneficiario.dataNascimento, formatter);
+                    LocalDate dataFimCalc = proc.getDataExecucao() != null ? proc.getDataExecucao() : LocalDate.now();
+                    int idade = (int) ChronoUnit.YEARS.between(dataNasc, dataFimCalc);
+                    proc.setIdadePaciente(idade);
+                }
+            } catch (DateTimeParseException e) {
+                // Se a data vier inválida, loga mas não quebra o sistema (campos ficarão null pro Drools ignorar)
             }
 
             // Drools aplica as regras do .drl e preenche valorTotal

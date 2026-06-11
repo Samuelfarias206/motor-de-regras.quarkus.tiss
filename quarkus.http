@@ -566,3 +566,134 @@ Content-Type: text/xml
         <tipoProcedimento>TERAPIA</tipoProcedimento>
     </guia>
 </guias>
+
+###
+
+### Avaliação de Lote - Anestesiologia XML (Teste de Variáveis Complexas)
+POST http://localhost:8080/tiss/lote-xml
+Content-Type: text/xml
+
+<guias>
+    <!-- GUIA 1: Idoso (Urgência) - UNIMED -->
+    <guia>
+        <registroANSOperadora>ANS111111</registroANSOperadora>
+        <numeroGuiaPrestador>ANEST-01</numeroGuiaPrestador>
+        <dataAutorizacao>2026-06-11</dataAutorizacao>
+
+        <beneficiario>
+            <numeroCarteira>000123-U</numeroCarteira>
+            <nomeBeneficiario>Sr. Idoso Unimed (Urgência)</nomeBeneficiario>
+            <dataNascimento>1960-01-01</dataNascimento>
+        </beneficiario>
+
+        <solicitante>
+            <nomeSolicitante>Hospital Central</nomeSolicitante>
+        </solicitante>
+
+        <caraterAtendimento>02</caraterAtendimento>
+        <tipoAtendimento>05</tipoAtendimento>
+        <motivoEncerramento>Alta</motivoEncerramento>
+
+        <procedimentos>
+            <procedimento>
+                <dataRealizacao>2026-06-11</dataRealizacao>
+                <codigoProcedimento>31403023</codigoProcedimento>
+                <descricaoProcedimento>Anestesia para Cirurgia Cardíaca</descricaoProcedimento>
+                <quantidade>1</quantidade>
+                <valorUnitario>2000.00</valorUnitario>
+                <valorTotal>2000.00</valorTotal>
+            </procedimento>
+        </procedimentos>
+
+        <executante>
+            <cpfExecutante>99988877700</cpfExecutante>
+            <nomeExecutante>Dr. Anestesista Chefe</nomeExecutante>
+            <grauParticipacao>00</grauParticipacao>
+        </executante>
+
+        <operadora>unimed</operadora>
+        <tipoProcedimento>ANESTESIA</tipoProcedimento>
+    </guia>
+
+    <!-- GUIA 2: Jovem (Eletiva) - UNIMED -->
+    <guia>
+        <registroANSOperadora>ANS111111</registroANSOperadora>
+        <numeroGuiaPrestador>ANEST-02</numeroGuiaPrestador>
+        <dataAutorizacao>2026-06-11</dataAutorizacao>
+
+        <beneficiario>
+            <numeroCarteira>000456-U</numeroCarteira>
+            <nomeBeneficiario>Jovem Unimed (Eletiva)</nomeBeneficiario>
+            <dataNascimento>1995-01-01</dataNascimento>
+        </beneficiario>
+
+        <solicitante>
+            <nomeSolicitante>Hospital Central</nomeSolicitante>
+        </solicitante>
+
+        <caraterAtendimento>01</caraterAtendimento>
+        <tipoAtendimento>05</tipoAtendimento>
+        <motivoEncerramento>Alta</motivoEncerramento>
+
+        <procedimentos>
+            <procedimento>
+                <dataRealizacao>2026-06-11</dataRealizacao>
+                <codigoProcedimento>31403023</codigoProcedimento>
+                <descricaoProcedimento>Anestesia para Cirurgia Simples</descricaoProcedimento>
+                <quantidade>1</quantidade>
+                <valorUnitario>1000.00</valorUnitario>
+                <valorTotal>1000.00</valorTotal>
+            </procedimento>
+        </procedimentos>
+
+        <executante>
+            <cpfExecutante>99988877700</cpfExecutante>
+            <nomeExecutante>Dr. Anestesista Chefe</nomeExecutante>
+            <grauParticipacao>00</grauParticipacao>
+        </executante>
+
+        <operadora>unimed</operadora>
+        <tipoProcedimento>ANESTESIA</tipoProcedimento>
+    </guia>
+
+    <!-- GUIA 3: Idosa (Eletiva) - AMIL -->
+    <guia>
+        <registroANSOperadora>ANS222222</registroANSOperadora>
+        <numeroGuiaPrestador>ANEST-03</numeroGuiaPrestador>
+        <dataAutorizacao>2026-06-11</dataAutorizacao>
+
+        <beneficiario>
+            <numeroCarteira>000789-A</numeroCarteira>
+            <nomeBeneficiario>Dona Idosa Amil (Eletiva)</nomeBeneficiario>
+            <dataNascimento>1950-01-01</dataNascimento>
+        </beneficiario>
+
+        <solicitante>
+            <nomeSolicitante>Clínica Amil</nomeSolicitante>
+        </solicitante>
+
+        <caraterAtendimento>01</caraterAtendimento>
+        <tipoAtendimento>05</tipoAtendimento>
+        <motivoEncerramento>Alta</motivoEncerramento>
+
+        <procedimentos>
+            <procedimento>
+                <dataRealizacao>2026-06-11</dataRealizacao>
+                <codigoProcedimento>31403023</codigoProcedimento>
+                <descricaoProcedimento>Anestesia para Catarata</descricaoProcedimento>
+                <quantidade>1</quantidade>
+                <valorUnitario>800.00</valorUnitario>
+                <valorTotal>800.00</valorTotal>
+            </procedimento>
+        </procedimentos>
+
+        <executante>
+            <cpfExecutante>55544433322</cpfExecutante>
+            <nomeExecutante>Dra. Anestesista Amil</nomeExecutante>
+            <grauParticipacao>01</grauParticipacao>
+        </executante>
+
+        <operadora>amil</operadora>
+        <tipoProcedimento>ANESTESIA</tipoProcedimento>
+    </guia>
+</guias>
