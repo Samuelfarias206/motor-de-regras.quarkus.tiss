@@ -1,36 +1,57 @@
 package io.trustep.calculators;
 
-import io.trustep.calculators.templates.DynamicTemplate;
 import io.trustep.drools.models.Procedimento;
-import io.trustep.dto.ContaFato;
-import io.trustep.dto.Glosa;
+import io.trustep.entities.RegraOperadoraEntity;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
+
+import java.math.BigDecimal;
 
 /**
- * Serviço que gerencia o cálculo. Agora delega totalmente para o motor dinâmico
- * que acessa o banco de dados.
+ * Serviço de apoio ao Drools.
+ * Executa as operações matemáticas ditadas pelo motor de regras.
  */
 @ApplicationScoped
 public class CalculadoraService {
 
-    @Inject
-    DynamicTemplate dynamicTemplate;
-
     /**
-     * Método chamado pelo motor do Drools para calcular valores de um Procedimento.
-     * @param procedimento o procedimento a ser calculado
+     * Aplica uma regra vinda do banco de dados ao procedimento, conforme 
+     * decisão tomada pelo DRL (Pattern Matching).
+     *
+     * @param procedimento o procedimento sendo calculado
+     * @param regra a entidade do banco contendo a ação a ser executada
      */
-    public void calcularProcedimento(Procedimento procedimento) {
-        dynamicTemplate.calcularProcedimento(procedimento);
+    public void aplicarRegra(Procedimento procedimento, RegraOperadoraEntity regra) {
+        BigDecimal valorFinal = procedimento.getValorApurado() != null 
+                ? procedimento.getValorApurado() 
+                : procedimento.getValorBase();
+
+        switch (regra.getTipoAcao()) {
+            case DESCONTO_PERCENTUAL:
+                BigDecimal desconto = valorFinal.multiply(regra.getValorAcao());
+                valorFinal = valorFinal.subtract(desconto);
+                break;
+            case ACRESCIMO_PERCENTUAL:
+                BigDecimal acrescimo = valorFinal.multiply(regra.getValorAcao());
+                valorFinal = valorFinal.add(acrescimo);
+                break;
+            case VALOR_FIXO:
+                valorFinal = regra.getValorAcao();
+                break;
+        }
+
+        // Rastreabilidade
+        procedimento.getRegrasAplicadas().add(regra.getDescricaoLog());
+        procedimento.setValorApurado(valorFinal);
     }
 
     /**
-     * Método chamado pelo motor do Drools para calcular a Glosa de uma conta.
-     * @param fato contexto da conta
-     * @param glosa objeto de glosa a ser atualizado
+     * Define o valor base se nenhuma regra for aplicada.
      */
-    public void calcularGlosa(ContaFato fato, Glosa glosa) {
-        dynamicTemplate.calcularGlosa(fato, glosa);
+    public void aplicarSemRegra(Procedimento procedimento) {
+        if (procedimento.getValorApurado() == null) {
+            procedimento.setValorApurado(procedimento.getValorBase());
+            procedimento.getRegrasAplicadas().add("Nenhuma regra aplicável encontrada no Drools. Valor base mantido.");
+        }
     }
+
 }

@@ -1,13 +1,17 @@
 package io.trustep.services;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import io.netty.handler.codec.http.multipart.FileUpload;
 import io.trustep.drools.models.Procedimento;
 import io.trustep.dto.sadt.DadosSolicitacaoProcedimentoDTO;
 import io.trustep.dto.sadt.GuiaRequestXML;
 import io.trustep.dto.sadt.GuiaSpSadtDTO;
 import io.trustep.entities.GuiaEntity;
 import io.trustep.entities.LoteEntity;
+import io.trustep.input.AnexosInput;
 import io.trustep.repositories.GuiaRepository;
 import io.trustep.repositories.LoteRepository;
 import io.trustep.utils.DroolsRulesProcessor;
@@ -15,6 +19,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -503,5 +508,38 @@ public class TissLoteService {
                     .build();
             guiaRepository.salvar(guiaEntity);
         }
+    }
+
+    public String processarCSV(InputStream csv, List<FileUpload> files) {
+        try {
+            CsvMapper mapper = new CsvMapper();
+
+            CsvSchema schema = CsvSchema.emptySchema()
+                    .withHeader();
+
+            List<AnexosInput> anexos = mapper
+                    .readerFor(AnexosInput.class)
+                    .with(schema)
+                    .<AnexosInput>readValues(csv)
+                    .readAll();
+
+//            final var contasFatos = listaMapaGuias.stream().map(TransformerUtil::transformerToContaFato).toList();
+            rulesProcessor.processarRegras(Collections.singletonList(anexos));
+            anexos.stream().forEach(anexo -> {
+                /**
+                 * Validaçao de anexos para cada guia, verificando
+                 * quais documentos são necessários para
+                 * o tipo de guia e comparando com os anexos enviados
+                 * documentos*/
+
+            });
+            //validando anexos
+
+            // criar demonstrativos de pagamento para cada guia aprovada e retornar resposta
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return "";
     }
 }

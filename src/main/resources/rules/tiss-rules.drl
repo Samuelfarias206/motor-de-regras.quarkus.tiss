@@ -1,89 +1,46 @@
 package io.trustep.rules
 
-import io.trustep.dto.ContaFato;
-import io.trustep.dto.Elegibilidade;
-import io.trustep.dto.Autorizacao;
-import io.trustep.dto.Glosa;
 import io.trustep.drools.models.Procedimento;
+import io.trustep.entities.RegraOperadoraEntity;
 
 global io.trustep.calculators.CalculadoraService calculadora;
 
+
+
 // ─────────────────────────────────────────────────────────────────────────────
-// ELEGIBILIDADE (Etapa 4 – spec §4: "Validar Elegibilidade do Beneficiário")
+// PROCEDIMENTO (Etapa de Cálculo Baseado na Operadora - Data Driven)
 // ─────────────────────────────────────────────────────────────────────────────
 
-// Regra: atendimento coberto por RN da ANS → elegível automaticamente
-rule "Elegibilidade - atendimento RN"
+// Regra que cruza os dados do Procedimento com as Regras de Operadora que estão no Banco
+rule "Aplicar Regra Dinamica da Operadora"
     when
-        $fato : ContaFato(atendimentoRN == true)
-        $e    : Elegibilidade(elegivel == false)
+        // 1. Pega um procedimento que ainda não teve o valor calculado
+        $p : Procedimento(
+            $op : operadora != null, 
+            $cpf : cpfExecutante, 
+            $tipo : tipo, 
+            valorApurado == null
+        )
+        
+        // 2. O Drools busca na memória uma regra que "dê match" com esse procedimento!
+        // Ignora nulls (ex: se cpfExecutante for null na regra, vale pra todos os médicos)
+        $regra : RegraOperadoraEntity(
+            operadora.equalsIgnoreCase($op),
+            (cpfExecutante == null || cpfExecutante == $cpf),
+            (tipoProcedimento == null || tipoProcedimento.equalsIgnoreCase($tipo))
+        )
     then
-        modify($e){
-            setElegivel(true),
-            setMensagem("Beneficiário elegível por Resolução Normativa (ANS)")
-        };
+        // O Drools decidiu que essa regra se aplica! Manda o Java aplicar a matemática.
+        calculadora.aplicarRegra($p, $regra);
+        update($p);
 end
 
-// Regra: padrão — sem RN o beneficiário ainda é elegível (simplificação;
-//        num sistema real consultaria cadastro de elegibilidade)
-rule "Elegibilidade - padrao"
-    when
-        $fato : ContaFato(atendimentoRN == false)
-        $e    : Elegibilidade(elegivel == false)
-    then
-        modify($e){
-            setElegivel(true),
-            setMensagem("Beneficiário elegível")
-        };
-end
-
-// ─────────────────────────────────────────────────────────────────────────────
-// AUTORIZAÇÃO (Etapa 4 – spec §4: "Verificar Necessidade de Autorização")
-// ─────────────────────────────────────────────────────────────────────────────
-
-// Regra: INTERNACAO exige autorização prévia
-rule "Autorizacao - internacao"
-    when
-        $fato : ContaFato(tipoGuia == "INTERNACAO")
-        $a    : Autorizacao(necessitaAutorizacao == false)
-    then
-        modify($a){
-            setNecessitaAutorizacao(true),
-            setTipoAutorizacao("Autorização para internação")
-        };
-end
-
-// Regra: OPME exige autorização prévia
-rule "Autorizacao - opme"
-    when
-        $fato : ContaFato(tipoGuia == "OPME")
-        $a    : Autorizacao(necessitaAutorizacao == false)
-    then
-        modify($a){
-            setNecessitaAutorizacao(true),
-            setTipoAutorizacao("Autorização para OPME")
-        };
-end
-
-// Regra para cálculo de Glosa - repassada para o Java (Template Padrão ou por Operadora se adicionarmos operadora na Conta)
-rule "Glosa - processamento via Java"
-    when
-        $fato : ContaFato(valorGuia != null)
-        $g    : Glosa(statusGlosa == "SEM_GLOSA")
-    then
-        calculadora.calcularGlosa($fato, $g);
-        update($g);
-end
-
-// ─────────────────────────────────────────────────────────────────────────────
-// PROCEDIMENTO (Etapa de Cálculo Baseado na Operadora)
-// ─────────────────────────────────────────────────────────────────────────────
-
-// Regra universal que delega o cálculo de qualquer procedimento para a calculadora
-rule "Calculo Procedimento Operadora"
+// Regra de fallback caso nenhuma regra dê match
+rule "Fallback Sem Regra Especifica"
+    salience -10 // Executa por último
     when
         $p : Procedimento(valorApurado == null)
     then
-        calculadora.calcularProcedimento($p);
+        calculadora.aplicarSemRegra($p);
         update($p);
 end
