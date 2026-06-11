@@ -11,7 +11,6 @@ import io.trustep.dto.sadt.GuiaRequestXML;
 import io.trustep.dto.sadt.GuiaSpSadtDTO;
 import io.trustep.entities.GuiaEntity;
 import io.trustep.entities.LoteEntity;
-import io.trustep.input.AnexosInput;
 import io.trustep.repositories.GuiaRepository;
 import io.trustep.repositories.LoteRepository;
 import io.trustep.utils.DroolsRulesProcessor;
@@ -510,36 +509,36 @@ public class TissLoteService {
         }
     }
 
-    public String processarCSV(InputStream csv, List<FileUpload> files) {
-        try {
-            CsvMapper mapper = new CsvMapper();
-
-            CsvSchema schema = CsvSchema.emptySchema()
-                    .withHeader();
-
-            List<AnexosInput> anexos = mapper
-                    .readerFor(AnexosInput.class)
-                    .with(schema)
-                    .<AnexosInput>readValues(csv)
-                    .readAll();
-
-//            final var contasFatos = listaMapaGuias.stream().map(TransformerUtil::transformerToContaFato).toList();
-            rulesProcessor.processarRegras(Collections.singletonList(anexos));
-            anexos.stream().forEach(anexo -> {
-                /**
-                 * Validaçao de anexos para cada guia, verificando
-                 * quais documentos são necessários para
-                 * o tipo de guia e comparando com os anexos enviados
-                 * documentos*/
-
-            });
-            //validando anexos
-
-            // criar demonstrativos de pagamento para cada guia aprovada e retornar resposta
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        return "";
-    }
+//    public String processarCSV(InputStream csv, List<FileUpload> files) {
+//        try {
+//            CsvMapper mapper = new CsvMapper();
+//
+//            CsvSchema schema = CsvSchema.emptySchema()
+//                    .withHeader();
+//
+//            List<AnexosInput> anexos = mapper
+//                    .readerFor(AnexosInput.class)
+//                    .with(schema)
+//                    .<AnexosInput>readValues(csv)
+//                    .readAll();
+//
+////            final var contasFatos = listaMapaGuias.stream().map(TransformerUtil::transformerToContaFato).toList();
+//            rulesProcessor.processarRegras(Collections.singletonList(anexos));
+//            anexos.stream().forEach(anexo -> {
+//                /**
+//                 * Validaçao de anexos para cada guia, verificando
+//                 * quais documentos são necessários para
+//                 * o tipo de guia e comparando com os anexos enviados
+//                 * documentos*/
+//
+//            });
+//            //validando anexos
+//
+//            // criar demonstrativos de pagamento para cada guia aprovada e retornar resposta
+//
+//        } catch (Exception e) {
+//            throw new RuntimeException(e);
+//        }
+//        return "";
+//    }
 }
