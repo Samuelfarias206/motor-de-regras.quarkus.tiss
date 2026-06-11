@@ -4,7 +4,9 @@ import io.trustep.dto.ContaFato;
 import io.trustep.dto.Elegibilidade;
 import io.trustep.dto.Autorizacao;
 import io.trustep.dto.Glosa;
-import io.trustep.drools.models.Procedimento
+import io.trustep.drools.models.Procedimento;
+
+global io.trustep.calculators.CalculadoraService calculadora;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ELEGIBILIDADE (Etapa 4 – spec §4: "Validar Elegibilidade do Beneficiário")
@@ -63,52 +65,25 @@ rule "Autorizacao - opme"
         };
 end
 
-// ─────────────────────────────────────────────────────────────────────────────
-// GLOSA (Etapa 4 – spec §4: "Processar Glosa")
-// ─────────────────────────────────────────────────────────────────────────────
-
-// Regra: glosa parcial — reduz 50% do valor (spec ex: R$10.000 → R$5.000)
-rule "Glosa - parcial"
+// Regra para cálculo de Glosa - repassada para o Java (Template Padrão ou por Operadora se adicionarmos operadora na Conta)
+rule "Glosa - processamento via Java"
     when
-        $fato : ContaFato(possuiGlosa == true, valorGuia != null)
+        $fato : ContaFato(valorGuia != null)
         $g    : Glosa(statusGlosa == "SEM_GLOSA")
     then
-            // Abordagem purista do Java, mas isolada dentro do bloco then
-            java.math.BigDecimal desconto = $fato.getValorGuia().multiply(new java.math.BigDecimal("0.50"));
-            java.math.BigDecimal valorFinal = $fato.getValorGuia().subtract(desconto);
-            String tipo = $fato.getTipoGlosa() != null ? $fato.getTipoGlosa() : "GLOSA_PARCIAL";
-
-            modify($g) {
-                setStatusGlosa("GLOSADO"),
-                setPermiteRecurso(true),
-                setValorLiberado(valorFinal),
-                setTipoGlosa(tipo),
-                setValorAprovado(valorFinal)
-            };
-    end
-
-// Regra: sem glosa — valor liberado é o valor integral da guia
-rule "Glosa - sem glosa"
-    when
-        $fato : ContaFato(possuiGlosa == false, valorGuia != null)
-        $g    : Glosa(statusGlosa == "SEM_GLOSA")
-    then
-        modify($g){
-            setValorLiberado($fato.getValorGuia()),
-            setValorAprovado($fato.getValorGuia())
-        };
+        calculadora.calcularGlosa($fato, $g);
+        update($g);
 end
 
+// ─────────────────────────────────────────────────────────────────────────────
+// PROCEDIMENTO (Etapa de Cálculo Baseado na Operadora)
+// ─────────────────────────────────────────────────────────────────────────────
 
-rule "Operadora unimed"
+// Regra universal que delega o cálculo de qualquer procedimento para a calculadora
+rule "Calculo Procedimento Operadora"
     when
-        $p    : Procedimento(operadora == "unimed", tipo == "CIRURGIA")
+        $p : Procedimento(valorApurado == null)
     then
-        java.math.BigDecimal desconto = $p.getValorBase().multiply(new java.math.BigDecimal("0.50"));
-        modify($p){
-            setValorBase(desconto)
-        }
-        // Exemplo de regra específica para a operadora Unimed e um procedimento específico
-        // Poderia incluir lógica adicional, como aplicar um desconto ou marcar o procedimento para revisão
-        System.out.println("Procedimento 12345 da Unimed identificado. Aplicar regras específicas.");
+        calculadora.calcularProcedimento($p);
+        update($p);
 end

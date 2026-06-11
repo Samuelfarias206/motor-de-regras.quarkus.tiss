@@ -151,15 +151,20 @@ public class TissLoteService {
             proc.setTipo(guia.tipoProcedimento);
             proc.setValorBase(item.valorUnitario.multiply(BigDecimal.valueOf(item.quantidade)));
 
+            if (guia.executante != null) {
+                proc.setCpfExecutante(guia.executante.cpfExecutante);
+                proc.setNomeExecutante(guia.executante.nomeExecutante);
+            }
+
             // Drools aplica as regras do .drl e preenche valorTotal
             rulesProcessor.processarRegras(Collections.singletonList(proc));
 //            droolsService.aplicarRegras(proc);
 
             // Devolve o valor calculado para o item — será usado no XML
-            final var valorBaseProcedimento = Optional.ofNullable(proc)
-                    .map(Procedimento::getValorBase)
+            final var valorCalculadoProcedimento = Optional.ofNullable(proc)
+                    .map(p -> p.getValorApurado() != null ? p.getValorApurado() : p.getValorBase())
                     .orElse(BigDecimal.ZERO);
-            item.setValorTotal(valorBaseProcedimento);
+            item.setValorTotal(valorCalculadoProcedimento);
             total = total.add(item.getValorTotal());
         }
 
