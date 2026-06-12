@@ -1,5 +1,6 @@
 package io.trustep.repositories;
 
+import io.quarkus.cache.CacheResult;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import io.trustep.entities.RegraOperadoraEntity;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -23,5 +24,14 @@ public class RegraOperadoraRepository implements PanacheRepository<RegraOperador
                         "(cpfExecutante = ?2 or cpfExecutante is null) and " +
                         "(tipoProcedimento = ?3 or tipoProcedimento is null)",
                 operadora, cpfExecutante, tipoProcedimento).list();
+    }
+
+    /**
+     * Busca todas as regras de operadora, utilizando cache em memória.
+     * Na primeira chamada bate no banco, nas chamadas subsequentes retorna da RAM instantaneamente.
+     */
+    @CacheResult(cacheName = "regras-operadora")
+    public List<RegraOperadoraEntity> listarTodasEmCache() {
+        return listAll();
     }
 }

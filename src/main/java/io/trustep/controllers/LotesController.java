@@ -6,7 +6,6 @@ import io.trustep.entities.LoteEntity;
 import io.trustep.repositories.GuiaRepository;
 import io.trustep.repositories.LoteRepository;
 import io.trustep.services.TissLoteService;
-import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -14,8 +13,12 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import lombok.RequiredArgsConstructor;
 
+import java.net.URI;
 import java.util.List;
+import java.util.Map;
 
 /**
  * API REST do fluxo de processamento de guias TISS.
@@ -43,16 +46,12 @@ import java.util.List;
 @Path("/tiss")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
+@RequiredArgsConstructor
 public class LotesController {
 
-    @Inject
-    TissLoteService loteService;
-
-    @Inject
-    LoteRepository loteRepository;
-
-    @Inject
-    GuiaRepository guiaRepository;
+    private final TissLoteService loteService;
+    private final LoteRepository loteRepository;
+    private final GuiaRepository guiaRepository;
 
 //    /**
 //     * Etapa 1 – Receber Guia (spec §1).
@@ -137,9 +136,20 @@ public class LotesController {
     @POST
     @Path("/lote-xml")
     @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
-    public String processarLoteXml(String request) {
-        return this.loteService.gerarLoteXml(request);
+    @Produces(MediaType.APPLICATION_JSON) // Retornamos um recibo JSON em vez do XMLão
+    public Response processarLoteXml(String request) {
+
+        // Supondo que o serviço passe a retornar só o número do lote gerado
+        String numeroLote = this.loteService.gerarLoteXml(request);
+
+        URI location = URI.create("/tiss/lotes/" + numeroLote);
+
+        return Response.created(location) // Gera o status 201 e o header Location
+                .entity(Map.of("mensagem", "Lote processado e salvo com sucesso", "numeroLote", numeroLote))
+                .build();
     }
+
+
 
 
     /** Lista todos os lotes salvos no banco. */

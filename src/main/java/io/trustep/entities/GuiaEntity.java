@@ -9,6 +9,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,6 +18,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  * Entidade JPA que representa uma Guia SP/SADT TISS.
@@ -112,4 +115,11 @@ public class GuiaEntity {
     /** Data/hora de criação do registro (formato yyyy-MM-dd HH:mm:ss). */
     @Column(name = "criado_em", nullable = false, updatable = false)
     private String criadoEm;
+
+    @PrePersist
+    protected void onPrePersist() {
+        if (this.criadoEm == null) {
+            this.criadoEm = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        }
+    }
 }

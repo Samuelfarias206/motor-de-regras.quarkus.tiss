@@ -13,9 +13,6 @@ public enum StatusProtocolo {
     APROVADA,
     GLOSADA,
     REJEITADO,
-    // Etapa 5 – Demonstrativo gerado
-    DEMONSTRATIVO_GERADO,
-    // Etapa 6 – Financeiro
     AGUARDANDO_PAGAMENTO,
     // Etapa 7 – Pagamento
     PAGO,

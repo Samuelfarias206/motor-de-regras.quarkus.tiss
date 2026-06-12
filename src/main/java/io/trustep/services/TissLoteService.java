@@ -117,13 +117,14 @@ public class TissLoteService {
         //   <cabecalho>              — identifica quem envia, para quem e quando
         //   <prestadorParaOperadora> — contém o lote com as guias
         //   <epilogo>                — hash de integridade
-        return montarMensagemTiss(
-                numeroLote, dataGeracao, horaGeracao,
-                guias.get(0).registroANSOperadora,  // todas as guias do lote são da mesma operadora
-                blocoGuias.toString(),
-                valorTotalLote,
-                hash
-        );
+//        return montarMensagemTiss(
+//                numeroLote, dataGeracao, horaGeracao,
+//                guias.get(0).registroANSOperadora,  // todas as guias do lote são da mesma operadora
+//                blocoGuias.toString(),
+//                valorTotalLote,
+//                hash
+//        );
+        return numeroLote;
     }
 
     public String gerarLoteXml(String request) {
@@ -180,7 +181,9 @@ public class TissLoteService {
                     proc.setIdadePaciente(idade);
                 }
             } catch (DateTimeParseException e) {
-                // Se a data vier inválida, loga mas não quebra o sistema (campos ficarão null pro Drools ignorar)
+                throw new IllegalArgumentException(
+                        String.format("Lote rejeitado: Data inválida encontrada na guia %s. O formato esperado é yyyy-MM-dd.", 
+                                guia.numeroGuiaPrestador), e);
             }
 
             // Drools aplica as regras do .drl e preenche valorTotal
@@ -495,19 +498,22 @@ public class TissLoteService {
             String registroANSOperadora,
             String hashEpilogo) {
 
-        // 1. Cria e persiste o lote
+        // 1. Cria a entidade Lote (apenas em memória por enquanto)
         LoteEntity loteEntity = LoteEntity.builder()
                 .numeroLote(numeroLote)
                 .registroANSOperadora(registroANSOperadora)
                 .valorTotalLote(valorTotalLote)
                 .hashEpilogo(hashEpilogo)
                 .build();
-        loteRepository.salvar(loteEntity);
 
-        // 2. Cria e persiste cada guia vinculada ao lote
+        // 2. Cria as guias vinculadas ao lote
         int seq = 1;
         for (GuiaSpSadtDTO guia : guias) {
-            BigDecimal valorGuia = calcularValorGuia(guia);
+            // Em vez de chamar o Drools de novo (que dobraria o tempo de resposta),
+            // simplesmente somamos os totais que o primeiro loop já calculou no DTO.
+            BigDecimal valorGuia = guia.procedimentos.stream()
+                    .map(DadosSolicitacaoProcedimentoDTO::getValorTotal)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
 
             GuiaEntity guiaEntity = GuiaEntity.builder()
                     .lote(loteEntity)
@@ -528,8 +534,13 @@ public class TissLoteService {
                     .valorTotalGuia(valorGuia)
                     .sequenciaNoLote(seq++)
                     .build();
-            guiaRepository.salvar(guiaEntity);
+            
+            // Adiciona a guia na lista do lote (Preparando para o Cascade)
+            loteEntity.getGuias().add(guiaEntity);
         }
+
+        // 3. Salva APENAS o lote no banco. O JPA CascadeType.ALL inserirá as guias automaticamente.
+        loteRepository.salvar(loteEntity);
     }
 
 //    public String processarCSV(InputStream csv, List<FileUpload> files) {

@@ -27,9 +27,9 @@ public class DroolsRulesProcessor {
             // 1. Injeta os Procedimentos e outros fatos no Drools
             input.forEach(session::insert);
 
-            // 2. Busca todas as regras cadastradas no Banco de Dados
+            // 2. Busca todas as regras cadastradas no Banco de Dados (agora em memória via Cache)
             // e injeta na Working Memory do Drools para que ele faça o cruzamento.
-            List<RegraOperadoraEntity> regrasDb = regraOperadoraRepository.listAll();
+            List<RegraOperadoraEntity> regrasDb = regraOperadoraRepository.listarTodasEmCache();
             regrasDb.forEach(session::insert);
 
             session.fireAllRules();
