@@ -172,6 +172,12 @@
         <!--            <scope>import</scope>-->
         <!--        </dependency>-->
 
+        <!-- Cache local na aplicação (para evitar N+1 queries nas regras de negócio) -->
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-cache</artifactId>
+        </dependency>
+
         <!-- Hibernate ORM com Panache — Repository pattern para acesso ao banco -->
         <dependency>
             <groupId>io.quarkus</groupId>
