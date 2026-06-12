@@ -696,4 +696,45 @@ Content-Type: text/xml
         <operadora>amil</operadora>
         <tipoProcedimento>ANESTESIA</tipoProcedimento>
     </guia>
+
+    <!-- GUIA 4: Maximização de Regras (Cirurgia, Idoso, Urgência, Médico 123) - UNIMED -->
+    <guia>
+        <registroANSOperadora>ANS111111</registroANSOperadora>
+        <numeroGuiaPrestador>MAX-RULES-01</numeroGuiaPrestador>
+        <dataAutorizacao>2026-06-12</dataAutorizacao>
+
+        <beneficiario>
+            <numeroCarteira>999999-U</numeroCarteira>
+            <nomeBeneficiario>Paciente Combo Maximo</nomeBeneficiario>
+            <dataNascimento>1950-01-01</dataNascimento>
+        </beneficiario>
+
+        <solicitante>
+            <nomeSolicitante>Hospital Central</nomeSolicitante>
+        </solicitante>
+
+        <caraterAtendimento>02</caraterAtendimento>
+        <tipoAtendimento>05</tipoAtendimento>
+        <motivoEncerramento>Alta</motivoEncerramento>
+
+        <procedimentos>
+            <procedimento>
+                <dataRealizacao>2026-06-12</dataRealizacao>
+                <codigoProcedimento>12345678</codigoProcedimento>
+                <descricaoProcedimento>Cirurgia Complexa Combo</descricaoProcedimento>
+                <quantidade>1</quantidade>
+                <valorUnitario>10000.00</valorUnitario>
+                <valorTotal>10000.00</valorTotal>
+            </procedimento>
+        </procedimentos>
+
+        <executante>
+            <cpfExecutante>123</cpfExecutante>
+            <nomeExecutante>Dr. João Castro</nomeExecutante>
+            <grauParticipacao>00</grauParticipacao>
+        </executante>
+
+        <operadora>unimed</operadora>
+        <tipoProcedimento>CIRURGIA</tipoProcedimento>
+    </guia>
 </guias>

@@ -21,7 +21,7 @@ VALUES ('AMIL', null, null, 'ACRESCIMO_PERCENTUAL', 0.10, '02', 'Acréscimo de U
 
 -- 5. Acréscimo de 2% para maiores de 60 anos (idade_minima = 60)
 INSERT INTO regra_operadora (operadora, cpf_executante, tipo_procedimento, tipo_acao, valor_acao, idade_minima, descricao_log)
-VALUES ('UNIMED', null, null, 'ACRESCIMO_PERCENTUAL', 0.02, 60, 'Acréscimo de Risco por Idade (>60 anos) (2%) aplicado para Unimed.');
+VALUES ('UNIMED', null, null, 'ACRESCIMO_PERCENTUAL', 0.02, 60, 'Acréscimo de Risco por Idade (maior que 60 anos) (2%) aplicado para Unimed.');
 
 INSERT INTO regra_operadora (operadora, cpf_executante, tipo_procedimento, tipo_acao, valor_acao, idade_minima, descricao_log)
-VALUES ('AMIL', null, null, 'ACRESCIMO_PERCENTUAL', 0.02, 60, 'Acréscimo de Risco por Idade (>60 anos) (2%) aplicado para Amil.');
+VALUES ('AMIL', null, null, 'ACRESCIMO_PERCENTUAL', 0.02, 60, 'Acréscimo de Risco por Idade (maior que 60 anos) (2%) aplicado para Amil.');
