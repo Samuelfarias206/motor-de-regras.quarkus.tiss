@@ -60,6 +60,11 @@ public class LoteEntity {
     @Column(name = "criado_em", nullable = false, updatable = false)
     private String criadoEm;
 
+    /** Flag rápida para indicar se alguma guia deste lote foi glosada. */
+    @Builder.Default
+    @Column(name = "possui_glosa", nullable = false)
+    private boolean possuiGlosa = false;
+
     /** Guias pertencentes a este lote. */
     @Builder.Default
     @OneToMany(mappedBy = "lote", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)

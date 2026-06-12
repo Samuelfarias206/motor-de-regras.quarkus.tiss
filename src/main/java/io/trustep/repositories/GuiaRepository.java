@@ -64,6 +64,23 @@ public class GuiaRepository implements PanacheRepository<GuiaEntity> {
     }
 
     /**
+     * Valida se alguma das guias informadas já existe no banco de dados.
+     * Retorna a lista dos números que já estão duplicados.
+     *
+     * @param numeros lista de números de guia do prestador
+     * @return lista com os números que já existem no banco
+     */
+    public List<String> findGuiasExistentes(List<String> numeros) {
+        if (numeros == null || numeros.isEmpty()) {
+            return List.of();
+        }
+        return getEntityManager()
+                .createQuery("select g.numeroGuiaPrestador from GuiaEntity g where g.numeroGuiaPrestador in :numeros", String.class)
+                .setParameter("numeros", numeros)
+                .getResultList();
+    }
+
+    /**
      * Persiste uma nova guia no banco, preenchendo o timestamp de criação.
      *
      * @param entity a guia a ser persistida

@@ -17,6 +17,7 @@ public class DadosSolicitacaoProcedimentoDTO {
     public int quantidade;              // obrigatório
     public BigDecimal valorUnitario;        // valor base do procedimento
     public BigDecimal valorTotal; // preenchido pelo Drools — não vem no JSON de entrada
+    public String regrasAplicadas; // preenchido pelo Drools para auditoria
     public String viaAcesso;            // código via de acesso — obrigatório para cirurgia
     public String tecnicaUtilizada;     // código — obrigatório para cirurgia
     public String reducaoAcrescimo;     // "00" sem redução, "70" com redução etc

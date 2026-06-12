@@ -16,6 +16,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 
+import java.io.Serializable;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
@@ -180,6 +181,37 @@ public class LotesController {
     public GuiaEntity buscarGuia(@PathParam("numeroGuiaPrestador") String numeroGuiaPrestador) {
         return guiaRepository.findByNumeroGuiaPrestador(numeroGuiaPrestador)
                 .orElse(null);
+    }
+
+    /** Busca a auditoria de regras aplicadas em uma guia. */
+    @GET
+    @Path("/guias/{numeroGuiaPrestador}/auditoria")
+    public Response consultarAuditoriaGuia(@PathParam("numeroGuiaPrestador") String numeroGuia) {
+        java.util.Optional<GuiaEntity> guiaOpt = guiaRepository.findByNumeroGuiaPrestador(numeroGuia);
+        if (guiaOpt.isEmpty()) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity(Map.of("erro", "Guia não encontrada"))
+                    .build();
+        }
+        
+        GuiaEntity guia = guiaOpt.get();
+        
+        List<Map<String, Object>> procedimentos = guia.getProcedimentos().stream().map(p -> Map.<String, Object>of(
+                "codigo", p.getCodigoProcedimento(),
+                "descricao", p.getDescricaoProcedimento() != null ? p.getDescricaoProcedimento() : "",
+                "valorBase", p.getValorBase(),
+                "valorApurado", p.getValorApurado(),
+                "auditoriaRegras", p.getRegrasAplicadas() != null ? p.getRegrasAplicadas() : ""
+        )).toList();
+
+        Map<String, Object> resposta = Map.of(
+                "numeroGuia", guia.getNumeroGuiaPrestador(),
+                "status", guia.getStatus(),
+                "valorTotalGuia", guia.getValorTotalGuia(),
+                "procedimentos", procedimentos
+        );
+        
+        return Response.ok(resposta).build();
     }
 
     /** Lista todas as guias de um lote específico. */

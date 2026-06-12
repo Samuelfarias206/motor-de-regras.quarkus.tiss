@@ -10,6 +10,7 @@ import io.trustep.dto.sadt.DadosSolicitacaoProcedimentoDTO;
 import io.trustep.dto.sadt.GuiaRequestXML;
 import io.trustep.dto.sadt.GuiaSpSadtDTO;
 import io.trustep.entities.GuiaEntity;
+import io.trustep.entities.StatusGuia;
 import io.trustep.entities.LoteEntity;
 import io.trustep.repositories.GuiaRepository;
 import io.trustep.repositories.LoteRepository;
@@ -66,6 +67,21 @@ public class TissLoteService {
             throw new IllegalArgumentException(
                     "Lote excede o limite de " + MAX_GUIAS_LOTE +
                             " guias por arquivo TISS. Enviado: " + guias.size()
+            );
+        }
+
+        // --- ETAPA 1.5: Validação de Duplicidade ---
+        // O padrão TISS proíbe o envio da mesma guia duas vezes (gera Glosa 1013).
+        List<String> numerosRecebidos = guias.stream()
+                .map(g -> g.numeroGuiaPrestador)
+                .filter(n -> n != null && !n.isBlank())
+                .toList();
+
+        List<String> duplicadas = guiaRepository.findGuiasExistentes(numerosRecebidos);
+        if (!duplicadas.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Lote rejeitado: As seguintes guias já constam no sistema (Possível duplicidade - Glosa 1013): "
+                    + String.join(", ", duplicadas)
             );
         }
 
@@ -195,6 +211,7 @@ public class TissLoteService {
                     .map(p -> p.getValorApurado() != null ? p.getValorApurado() : p.getValorBase())
                     .orElse(BigDecimal.ZERO);
             item.setValorTotal(valorCalculadoProcedimento);
+            item.setRegrasAplicadas(String.join(" | ", proc.getRegrasAplicadas()));
             total = total.add(item.getValorTotal());
         }
 
@@ -533,8 +550,22 @@ public class TissLoteService {
                     .tipoProcedimento(guia.tipoProcedimento)
                     .valorTotalGuia(valorGuia)
                     .sequenciaNoLote(seq++)
+                    .status(StatusGuia.PROCESSADA)
                     .build();
             
+            // --- AUDITORIA DE PROCEDIMENTOS ---
+            for (DadosSolicitacaoProcedimentoDTO item : guia.procedimentos) {
+                io.trustep.entities.ProcedimentoEntity procEntity = io.trustep.entities.ProcedimentoEntity.builder()
+                        .guia(guiaEntity)
+                        .codigoProcedimento(item.codigoProcedimento)
+                        .descricaoProcedimento(item.descricaoProcedimento)
+                        .valorBase(item.valorUnitario.multiply(BigDecimal.valueOf(item.quantidade)))
+                        .valorApurado(item.valorTotal)
+                        .regrasAplicadas(item.regrasAplicadas)
+                        .build();
+                guiaEntity.getProcedimentos().add(procEntity);
+            }
+
             // Adiciona a guia na lista do lote (Preparando para o Cascade)
             loteEntity.getGuias().add(guiaEntity);
         }

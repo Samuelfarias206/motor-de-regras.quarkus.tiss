@@ -3,14 +3,19 @@ package io.trustep.entities;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.persistence.CascadeType;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,6 +25,8 @@ import lombok.Setter;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Entidade JPA que representa uma Guia SP/SADT TISS.
@@ -112,9 +119,20 @@ public class GuiaEntity {
     @Column(name = "sequencia_no_lote")
     private Integer sequenciaNoLote;
 
+    /** Status atual da guia no fluxo TISS. */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status_guia", nullable = false)
+    private StatusGuia status;
+
     /** Data/hora de criação do registro (formato yyyy-MM-dd HH:mm:ss). */
     @Column(name = "criado_em", nullable = false, updatable = false)
     private String criadoEm;
+
+    /** Procedimentos (itens) pertencentes a esta guia (usados para auditoria). */
+    @Builder.Default
+    @OneToMany(mappedBy = "guia", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private List<ProcedimentoEntity> procedimentos = new ArrayList<>();
 
     @PrePersist
     protected void onPrePersist() {
